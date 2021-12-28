@@ -46,13 +46,42 @@ public class MinMax {
     }
 
     public static void main(String[] args) {
-        long asd = 4547941575690240L;
-        BitBoardSuperPazzaSgravata boardW = new BitBoardSuperPazzaSgravata(true);
-        boardW.stampa();
-        System.out.println();
-        BitBoardSuperPazzaSgravata boardB = new BitBoardSuperPazzaSgravata(false);
-        boardB.stampa();
-        System.out.println(boardB.isPossible(Mossa.NE, -1, 2));
-        // System.out.println(boardB.getNumPedine());
+        BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata();
+        System.out.println(board);
+
+        board.muovi(Mossa.NE, 5, 3, true);
+        System.out.println("\nDopo la mossa NE, 5, 3, true");
+        System.out.println(board);
+
+        board.muovi(Mossa.S, 1, 4, false);
+        System.out.println("\nDopo la mossa S, 4, 1, false");
+        System.out.println(board);
+
+        /* TEST ESPLOSIONE
+            board.muovi(Mossa.NW, 4, 2, true);
+            System.out.println("\nDopo la mossa NW, 4, 2, true");
+            System.out.println(board);
+        */
+
+        // CASO LIMITE -> BORDO
+        board.muovi(Mossa.E, 3, 1, true);
+        System.out.println("\nDopo la mossa E, 3, 1, true");
+        System.out.println(board);
+
+        board.muovi(Mossa.W, 3, 6, false);
+        System.out.println("\nDopo la mossa W, 3, 6, false");
+        System.out.println(board);
+
+        board.muovi(Mossa.W, 4, 6, true);
+        System.out.println("\nDopo la mossa W, 4, 6, true");
+        System.out.println(board);
+
+        board.muovi(Mossa.E, 5, 2, false);
+        System.out.println("\nDopo la mossa E, 5, 2, false");
+        System.out.println(board);
+
+        board.muovi(Mossa.N, 3, 0, true);
+        System.out.println("\nDopo la mossa N, 3, 0, true");
+        System.out.println(board);
     }
 }
