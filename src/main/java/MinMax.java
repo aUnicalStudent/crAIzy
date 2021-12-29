@@ -85,7 +85,8 @@ public class MinMax {
     }
 
     public static void main(String[] args) {
-        BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
+        //BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
+        BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata();
         System.out.println(board);
         bianco = true;
         Nodo nn = new Nodo(true, board, null);
