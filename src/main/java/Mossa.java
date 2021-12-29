@@ -1,25 +1,43 @@
-public enum Mossa {
-    N(0,1),
-    NE(-1, 1),
-    E(-1, 0),
-    SE(-1, -1),
-    S(0, -1),
-    SW(1, -1),
-    W(1, 0),
-    NW(1, 1);
+public class Mossa {
+    private Direzione dir;
+    private int r, c;
 
-    private int x, y;
-
-    Mossa(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Mossa(Direzione dir, int r, int c) {
+        this.dir = dir;
+        this.r = r;
+        this.c = c;
     }
 
-    public int getX() {
-        return x;
+    public Direzione getDir() {
+        return dir;
     }
 
-    public int getY() {
-        return y;
+    public int getR() {
+        return r;
+    }
+
+    public int getC() {
+        return c;
+    }
+
+    public void setDir(Direzione dir) {
+        this.dir = dir;
+    }
+
+    public void setR(int r) {
+        this.r = r;
+    }
+
+    public void setC(int c) {
+        this.c = c;
+    }
+
+    @Override
+    public String toString() {
+        return "Mossa{" +
+                "dir=" + dir +
+                ", r=" + r +
+                ", c=" + c +
+                '}';
     }
 }

@@ -1,67 +1,122 @@
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 public class MinMax {
+    private static boolean bianco;
+
     static class Nodo {
-        private boolean max; // 1 noi, 0 avversario
+        private boolean raffaeleMASTER; // true bianco, false nero
         private float euristica;
         //Scacchiera
-        private BitSet boardB = new BitSet(64);
-        private BitSet boardW = new BitSet(64);
+        private BitBoardSuperPazzaSgravata bb;
         private List<Nodo> figli = new LinkedList<>();
+        private Mossa pre;
 
         public Nodo() {}
 
-        public Nodo(boolean max, float euristica, BitSet boardB, BitSet boardW, List<Nodo> figli) {
-            this.max = max;
-            this.euristica = euristica;
-            this.boardB = boardB;
-            this.boardW = boardW;
-            this.figli = figli;
+        public Nodo(boolean col, BitBoardSuperPazzaSgravata b, Mossa pre) {
+            this.raffaeleMASTER = col;
+            this.bb = (BitBoardSuperPazzaSgravata) b.clone();
+            this.pre = pre;
+        }
+
+        public float calcolaEuristica() {
+            if(raffaeleMASTER)
+                return bb.diff();
+            return -bb.diff();
+        }
+
+        @Override
+        public String toString() {
+            return "Nodo{ max = " + raffaeleMASTER + "\n\n" + bb + "\n}";
         }
     }
 
-    public float minmax(Nodo init_node, int depth) {
-        //genera_figli(init_node);
-        if(depth == 0 || init_node.figli.size() == 0)
-            return init_node.euristica;
-
+    public static float minmax(Nodo nodoCorrente, int depth) {
+        generaFigli(nodoCorrente);
+        if(depth == 0 || nodoCorrente.figli.size() == 0)
+            nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
         // MASSIMIZZATORE
-        if(init_node.max){
-            float maxE = Float.MIN_VALUE;
+        else if(!(nodoCorrente.raffaeleMASTER ^ bianco)){
             float eva = 0;
-            for(Nodo n : init_node.figli)
+            for(Nodo n : nodoCorrente.figli)
                 eva = minmax(n, depth--);
-            return Math.max(eva, maxE);
+            nodoCorrente.euristica = Math.max(eva, Float.MIN_VALUE);
         }
         // MINIMIZZATORE
         else {
-            float minE = Float.MAX_VALUE;
             float eva = 0;
-            for(Nodo n : init_node.figli)
+            for(Nodo n : nodoCorrente.figli)
                 eva = minmax(n, depth--);
-            return Math.min(eva, minE);
+            nodoCorrente.euristica = Math.min(eva, Float.MAX_VALUE);
         }
+
+        return nodoCorrente.euristica;
+    }
+
+    private static void generaFigli(Nodo nodo) {
+        List<Mossa> m = nodo.bb.mossePossibili(nodo.raffaeleMASTER);
+        Nodo n;
+        for(Mossa m1 : m) {
+            //System.out.println(m1);
+            n = new Nodo(!nodo.raffaeleMASTER, nodo.bb, m1);
+            n.bb.muovi(m1, nodo.raffaeleMASTER);
+            nodo.figli.add(n);
+            //System.out.println(n);
+        }
+    }
+
+    private static Mossa scegli(Nodo nodo) {
+        float val = minmax(nodo, 1);
+
+        for(Nodo n : nodo.figli)
+            if(n.euristica == val)
+                return n.pre;
+
+        return null;
     }
 
     public static void main(String[] args) {
         BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata();
-        System.out.println(board);
+        //System.out.println(board);
+        bianco = true;
+        Nodo nn = new Nodo(true, board, null);
+        //generaFigli(nn);
+        //System.out.println("---------------------------------------------");
+        //System.out.println(nn.figli);
+        Mossa m = scegli(nn);
+        Scanner sc = new Scanner(System.in);
+        /*while(true) {
+            Mossa m = scegli(nn);
+            nn.bb.muovi(m, bianco);
+            System.out.println(nn);
+            System.out.print("> ");
 
-        board.muovi(Mossa.NE, 5, 3, true);
+            Direzione dir = Direzione.valueOf(sc.next());
+            int x = sc.nextInt();
+            int y = sc.nextInt();
+            m = new Mossa(dir, x, y);
+            nn = new Nodo(!bianco, nn.bb, null);
+            nn.bb.muovi(m, !bianco);
+        }*/
+
+        /*
+        // INIT
+        board.muovi(new Mossa(Direzione.NE, 5, 3), true);
         System.out.println("\nDopo la mossa NE, 5, 3, true");
         System.out.println(board);
 
-        board.muovi(Mossa.S, 1, 4, false);
-        System.out.println("\nDopo la mossa S, 4, 1, false");
+        board.muovi(new Mossa(Direzione.E, 4, 1), false);
+        System.out.println("\nDopo la mossa E, 4, 1, false");
         System.out.println(board);
 
-        /* TEST ESPLOSIONE
-            board.muovi(Mossa.NW, 4, 2, true);
-            System.out.println("\nDopo la mossa NW, 4, 2, true");
-            System.out.println(board);
-        */
+        // TEST ESPLOSIONE
+        board.muovi(new Mossa(Direzione.NW, 4, 2), true);
+        System.out.println("\nDopo la mossa NW, 4, 2, true");
+        System.out.println(board);
+
 
         // CASO LIMITE -> BORDO
         board.muovi(Mossa.E, 3, 1, true);
@@ -83,5 +138,17 @@ public class MinMax {
         board.muovi(Mossa.N, 3, 0, true);
         System.out.println("\nDopo la mossa N, 3, 0, true");
         System.out.println(board);
+
+        // CLONE
+        BitBoardSuperPazzaSgravata clonata = (BitBoardSuperPazzaSgravata) board.clone();
+
+        clonata.muovi(Mossa.NE, 5, 3, true);
+        System.out.println("\nDopo la mossa NE, 5, 3, true");
+        System.out.println(clonata);
+
+        board.muovi(Mossa.S, 1, 4, false);
+        System.out.println("\nDopo la mossa S, 4, 1, false");
+        System.out.println(board);
+        */
     }
 }
