@@ -23,7 +23,7 @@ public class MinMax {
         }
 
         public float calcolaEuristica() {
-            if(raffaeleMASTER)
+            if(bianco)
                 return bb.diff();
             return -bb.diff();
         }
@@ -40,56 +40,63 @@ public class MinMax {
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
         // MASSIMIZZATORE
         else if(!(nodoCorrente.raffaeleMASTER ^ bianco)){
-            float eva = 0;
+            float eva = Float.NEGATIVE_INFINITY;
             for(Nodo n : nodoCorrente.figli)
-                eva = minmax(n, depth--);
-            nodoCorrente.euristica = Math.max(eva, Float.MIN_VALUE);
+                eva = Math.max(eva, minmax(n, depth-1));
+            nodoCorrente.euristica = eva;
         }
         // MINIMIZZATORE
         else {
-            float eva = 0;
+            float eva = Float.POSITIVE_INFINITY;
             for(Nodo n : nodoCorrente.figli)
-                eva = minmax(n, depth--);
-            nodoCorrente.euristica = Math.min(eva, Float.MAX_VALUE);
+                eva = Math.min(eva, minmax(n, depth-1));
+            nodoCorrente.euristica = eva;
         }
 
         return nodoCorrente.euristica;
     }
 
     private static void generaFigli(Nodo nodo) {
+        if((nodo.bb.getNumPedineB() <= 1 && nodo.bb.getNumPedineW() <= 1) || nodo.bb.getNumPedineB() < 1 || nodo.bb.getNumPedineW() < 1)
+            return;
+
         List<Mossa> m = nodo.bb.mossePossibili(nodo.raffaeleMASTER);
         Nodo n;
         for(Mossa m1 : m) {
-            //System.out.println(m1);
             n = new Nodo(!nodo.raffaeleMASTER, nodo.bb, m1);
             n.bb.muovi(m1, nodo.raffaeleMASTER);
             nodo.figli.add(n);
-            //System.out.println(n);
         }
     }
 
     private static Mossa scegli(Nodo nodo) {
-        float val = minmax(nodo, 1);
+        float val = minmax(nodo, 3);
+        System.out.println(val);
 
-        for(Nodo n : nodo.figli)
-            if(n.euristica == val)
+        float a;
+        for(Nodo n : nodo.figli) {
+            a = n.euristica;
+            System.out.println(a);
+            if(a == val)
                 return n.pre;
+        }
 
         return null;
     }
 
     public static void main(String[] args) {
-        BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata();
-        //System.out.println(board);
+        BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
+        System.out.println(board);
         bianco = true;
         Nodo nn = new Nodo(true, board, null);
         //generaFigli(nn);
         //System.out.println("---------------------------------------------");
         //System.out.println(nn.figli);
-        Mossa m = scegli(nn);
+        //Mossa m = scegli(nn);
         Scanner sc = new Scanner(System.in);
-        /*while(true) {
+        while(true) {
             Mossa m = scegli(nn);
+            System.out.println(m);
             nn.bb.muovi(m, bianco);
             System.out.println(nn);
             System.out.print("> ");
@@ -98,9 +105,10 @@ public class MinMax {
             int x = sc.nextInt();
             int y = sc.nextInt();
             m = new Mossa(dir, x, y);
-            nn = new Nodo(!bianco, nn.bb, null);
+
+            nn = new Nodo(true, nn.bb, null);
             nn.bb.muovi(m, !bianco);
-        }*/
+        }
 
         /*
         // INIT

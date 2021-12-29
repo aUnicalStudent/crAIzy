@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,8 @@ public class BitBoardSuperPazzaSgravata implements Cloneable {
     }
 
     public BitBoardSuperPazzaSgravata(long white, long black) {
+        this.numPedineB = this.numPedineW = 2;
+
         this.boardW = BitSet.valueOf(new long[] {white});
         this.boardB = BitSet.valueOf(new long[] {black});
     }
@@ -62,8 +65,13 @@ public class BitBoardSuperPazzaSgravata implements Cloneable {
             flag = isPossible(tmp);
         }
 
-        if(flag == -2)
+        if(flag == -2) {
+            if(bianco)
+                numPedineW--;
+            else
+                numPedineB--;
             esplodi(r1, c1);
+        }
         else
             b.set(r1*8+c1);
 
@@ -123,17 +131,6 @@ public class BitBoardSuperPazzaSgravata implements Cloneable {
             }
         });
 
-        /*
-        for(int i = 0; i < 64; i++) {
-            if(b.get(i)) {
-                for(Direzione d : Direzione.values()) {
-                    Mossa m1 = new Mossa(d, i/8, i%8);
-                    if(isPossible(m1) == 0)
-                        m.add(m1);
-                }
-            }
-        }*/
-
         return m;
     }
 
@@ -151,9 +148,19 @@ public class BitBoardSuperPazzaSgravata implements Cloneable {
         return null;
     }
 
+    public byte getNumPedineB() {
+        return numPedineB;
+    }
+
+    public byte getNumPedineW() {
+        return numPedineW;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("#bianche " + numPedineW + "    #nere " + numPedineB + "\n");
+        sb.append("CHECKPOINT BIANCO " + Arrays.toString(boardW.toLongArray()) + "     CHECKPOINT NERO " + Arrays.toString(boardB.toLongArray()) + "\n");
         for(int i = 63; i >= 0; i-=8) {
             for(int j = i; j > i - 8; j--) {
                 if(boardW.get(j))
