@@ -103,7 +103,7 @@ public class MinMax {
 
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
-        val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         System.out.println(val);
 
         float a;
