@@ -20,6 +20,12 @@ public class Mossa {
         return c;
     }
 
+    public char getRM(){
+        return (char) (72 -r);
+    }
+
+    public int getCM(){ return 8-c; }
+
     public void setDir(Direzione dir) {
         this.dir = dir;
     }
