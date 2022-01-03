@@ -30,16 +30,19 @@ public class Mossa {
         return "" + (char) (72 -r) + (8-c);
     }
 
-    public void setDir(Direzione dir) {
+    public Mossa setDir(Direzione dir) {
         this.dir = dir;
+        return this;
     }
 
-    public void setR(int r) {
+    public Mossa setR(int r) {
         this.r = r;
+        return this;
     }
 
-    public void setC(int c) {
+    public Mossa setC(int c) {
         this.c = c;
+        return this;
     }
 
     @Override

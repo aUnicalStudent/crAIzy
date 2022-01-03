@@ -12,13 +12,12 @@ public class ServerCommunication {
 
     public void startConnection(String ip, int port) throws IOException {
         clientSocket = new Socket(ip,port);
-        out = new PrintWriter(clientSocket.getOutputStream());
+        out = new PrintWriter(clientSocket.getOutputStream(),true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-    public String sendMessage(String msg) throws IOException {
+    public void sendMessage(String msg) throws IOException {
         out.println(msg);
-        return in.readLine();
     }
 
     public String recMessage() throws IOException{
