@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
@@ -103,8 +105,8 @@ public class MinMax {
 
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
-        val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
-        System.out.println(val);
+        val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //System.out.println(val);
 
         float a;
         for(Nodo n : nodo.figli) {
@@ -117,13 +119,10 @@ public class MinMax {
         return null;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
         BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata();
         System.out.println(board);
-        //generaFigli(nn);
-        //System.out.println("---------------------------------------------");
-        //System.out.println(nn.figli);
         Mossa m;
         //Scanner sc = new Scanner(System.in);
         //System.out.print("Che giocatore sei ? B o W > ");
@@ -131,9 +130,9 @@ public class MinMax {
         bianco = true;
         Nodo nn = new Nodo(bianco, board, null);
 
- /*
+/*
         if(bianco) {
-            m = scegli(nn);
+            m = scegli(nn, true);
             System.out.println(m);
             nn.bb.muovi(m, bianco);
             System.out.println(nn);
@@ -152,7 +151,7 @@ public class MinMax {
             System.out.println(nn);
             Instant start = Instant.now();
 // CODE HERE
-            m = scegli(nn);
+            m = scegli(nn, true);
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             nn.bb.muovi(m, bianco);
@@ -160,7 +159,7 @@ public class MinMax {
             System.out.println(m);
             System.out.println(nn);
         }
-*/
+
 
         while(true) {
             Instant start = Instant.now();

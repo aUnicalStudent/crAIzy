@@ -21,4 +21,7 @@ public class ServerCommunication {
         return in.readLine();
     }
 
+    public String recMessage() throws IOException{
+        return in.readLine();
+    }
 }
