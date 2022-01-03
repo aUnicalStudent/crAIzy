@@ -124,11 +124,53 @@ public class MinMax {
         BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata();
         System.out.println(board);
         Mossa m;
-        //Scanner sc = new Scanner(System.in);
-        //System.out.print("Che giocatore sei ? B o W > ");
-        //bianco = sc.next().toUpperCase().equals("B");
-        bianco = true;
+
+        ServerCommunication sc = new ServerCommunication();
+        sc.startConnection("localhost", 8901);
+
+        bianco = sc.recMessage().contains("White"); // Messaggio di welcome
         Nodo nn = new Nodo(bianco, board, null);
+        //System.out.println(bianco);
+//        sc.recMessage(); // messaggio di minchia per aspettare il secondo giocatore
+//        System.out.println(sc.recMessage());
+//        sc.recMessage(); // messaggio di minchia per il fatto che tutti sono connessi
+        System.out.println(sc.recMessage());
+        System.out.println(sc.recMessage());
+//        System.out.println(sc.recMessage());
+
+        if(bianco) {
+            System.out.println(sc.recMessage());
+            m = scegli(nn, true);
+            //System.out.println("BIANCO MOVE " + m.getCell() + "," + m.getDir());
+            sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
+            nn.bb.muovi(m, bianco);
+            System.out.println(nn.bb);
+        }
+
+        String msg = "";
+        while(msg != null) {
+            msg = sc.recMessage();
+            System.out.println("MESSAGGIO DAL SERVER " + msg);
+            if(msg.contains("OPPONENT_MOVE")) {
+                String move [] = msg.split(" ")[1].split(",");
+                m = new Mossa(Direzione.valueOf(move[1]),move[0].charAt(0),Integer.parseInt(move[0].substring(1)));
+                //System.out.println("mossa dell'avversario: " + m);
+                nn = new Nodo(bianco, nn.bb, m);
+                nn.bb.muovi(m,!bianco);
+
+                m = scegli(nn,bianco);
+                sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
+                nn.bb.muovi(m,bianco);
+            }
+        }
+        //System.out.println(msg);
+
+
+//        Scanner sc = new Scanner(System.in);
+//        System.out.print("Che giocatore sei ? B o W > ");
+//        sc.next();
+//        bianco = sc.next().equals("White");
+//        bianco = true;
 
 /*
         if(bianco) {

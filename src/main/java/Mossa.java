@@ -8,6 +8,12 @@ public class Mossa {
         this.c = c;
     }
 
+    public Mossa(Direzione dir, char c, int i) {
+        this.dir = dir;
+        this.r = 72-c;
+        this.c = 8-i;
+    }
+
     public Direzione getDir() {
         return dir;
     }
