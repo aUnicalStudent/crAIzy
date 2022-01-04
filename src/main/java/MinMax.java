@@ -86,13 +86,16 @@ public class MinMax {
         return nodoCorrente.euristica;
     }
 
+      /*
+        *
+        *
+        *Aggiunto negascout da controllare bene
+        *
+        *
+    */
     public static float negaScout(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
         generaFigli(nodoCorrente);
         if(depth == 0 || nodoCorrente.figli.size() == 0){
-            /*nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
-            return nodoCorrente.euristica;*/
-
-            
                 if (col)
                     nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
                 else
