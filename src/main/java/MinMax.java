@@ -1,17 +1,13 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
 
     static class Nodo {
-        private boolean raffaeleMASTER; // true bianco, false nero
+        private boolean col; // true bianco, false nero
         private float euristica;
         //Scacchiera
         private BitBoardSuperPazzaSgravata bb;
@@ -21,7 +17,7 @@ public class MinMax {
         public Nodo() {}
 
         public Nodo(boolean col, BitBoardSuperPazzaSgravata b, Mossa pre) {
-            this.raffaeleMASTER = col;
+            this.col = col;
             this.bb = (BitBoardSuperPazzaSgravata) b.clone();
             this.pre = pre;
         }
@@ -34,7 +30,7 @@ public class MinMax {
 
         @Override
         public String toString() {
-            return "Nodo{ max = " + raffaeleMASTER + "\n\n" + bb + "\n}";
+            return "Nodo{ max = " + col + "\n\n" + bb + "\n}";
         }
     }
 
@@ -43,7 +39,7 @@ public class MinMax {
         if(depth == 0 || nodoCorrente.figli.size() == 0)
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
         // MASSIMIZZATORE
-        else if(!(nodoCorrente.raffaeleMASTER ^ bianco)){
+        else if(!(nodoCorrente.col ^ bianco)){
             float eva = Float.NEGATIVE_INFINITY;
             for(Nodo n : nodoCorrente.figli)
                 eva = Math.max(eva, minmax(n, depth-1));
@@ -65,7 +61,7 @@ public class MinMax {
         if(depth == 0 || nodoCorrente.figli.size() == 0)
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
         // MASSIMIZZATORE
-        else if(!(nodoCorrente.raffaeleMASTER ^ bianco)){
+        else if(!(nodoCorrente.col ^ bianco)){
             float eva = Float.NEGATIVE_INFINITY;
             for(Nodo n : nodoCorrente.figli) {
                 eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
@@ -90,23 +86,54 @@ public class MinMax {
         return nodoCorrente.euristica;
     }
 
+    public static float negamaxAlphaBeta(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
+        generaFigli(nodoCorrente);
+        if(depth == 0 || nodoCorrente.figli.size() == 0) {
+            if (col)
+                nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+            else
+                nodoCorrente.euristica = -nodoCorrente.calcolaEuristica();
+        }
+        else {
+            float eva = Float.NEGATIVE_INFINITY;
+            for (Nodo n : nodoCorrente.figli) {
+                eva = Math.max(eva, -negamaxAlphaBeta(n, depth - 1, -beta, -alpha, !col));
+                alpha = Math.max(alpha, eva);
+                if (alpha >= beta)
+                    break;
+            }
+            nodoCorrente.euristica = alpha;
+        }
+
+        return nodoCorrente.euristica;
+    }
+
+    /*public static float negamaxTransAlphaBeta(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
+        float origin = alpha;
+
+        TranspositionTable tt = new TranspositionTable();
+
+    }*/
+
+
     private static void generaFigli(Nodo nodo) {
         if((nodo.bb.getNumPedineB() <= 1 && nodo.bb.getNumPedineW() <= 1) || nodo.bb.getNumPedineB() < 1 || nodo.bb.getNumPedineW() < 1)
             return;
 
-        List<Mossa> m = nodo.bb.mossePossibili(nodo.raffaeleMASTER);
+        List<Mossa> m = nodo.bb.mossePossibili(nodo.col);
         Nodo n;
         for(Mossa m1 : m) {
-            n = new Nodo(!nodo.raffaeleMASTER, nodo.bb, m1);
-            n.bb.muovi(m1, nodo.raffaeleMASTER);
+            n = new Nodo(!nodo.col, nodo.bb, m1);
+            n.bb.muovi(m1, nodo.col);
             nodo.figli.add(n);
         }
     }
 
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
-        val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
+        val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
 
         float a;
         for(Nodo n : nodo.figli) {
@@ -151,7 +178,7 @@ public class MinMax {
         while(msg != null) {
             msg = sc.recMessage();
             System.out.println("MESSAGGIO DAL SERVER " + msg);
-            if(msg.contains("OPPONENT_MOVE")) {
+            if(msg != null && msg.contains("OPPONENT_MOVE")) {
                 String move [] = msg.split(" ")[1].split(",");
                 m = new Mossa(Direzione.valueOf(move[1]),move[0].charAt(0),Integer.parseInt(move[0].substring(1)));
                 //System.out.println("mossa dell'avversario: " + m);
@@ -159,6 +186,8 @@ public class MinMax {
                 nn.bb.muovi(m,!bianco);
 
                 m = scegli(nn,bianco);
+                if(m == null)
+                    break;
                 sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
                 nn.bb.muovi(m,bianco);
             }
