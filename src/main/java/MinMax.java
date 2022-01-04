@@ -86,6 +86,46 @@ public class MinMax {
         return nodoCorrente.euristica;
     }
 
+    public static float negaScout(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
+        generaFigli(nodoCorrente);
+        if(depth == 0 || nodoCorrente.figli.size() == 0){
+            /*nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+            return nodoCorrente.euristica;*/
+
+            
+                if (col)
+                    nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+                else
+                    nodoCorrente.euristica = -nodoCorrente.calcolaEuristica();
+                return nodoCorrente.euristica;
+
+        }
+        else{
+            float score= Float.NEGATIVE_INFINITY, n1= beta, cur;
+            for (Nodo n : nodoCorrente.figli) {
+                cur= -negaScout(n, depth-1, -n1, -alpha, !col);
+                if (cur > score) {
+                    if (n1==beta) {
+                        score= cur;
+                    }else{
+                        score=-negaScout(n, depth-1, -beta, -cur, !col);
+                    }
+                }
+                if (score>alpha)
+                    alpha=score;
+    
+                if(alpha>= beta){
+                    nodoCorrente.euristica=alpha;
+                    return alpha;
+                }
+                n1= alpha+1;
+            }
+            nodoCorrente.euristica= score;
+            return score;
+        }
+    }
+
+
     public static float negamaxAlphaBeta(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
         generaFigli(nodoCorrente);
         if(depth == 0 || nodoCorrente.figli.size() == 0) {
@@ -133,8 +173,8 @@ public class MinMax {
         float val;
         //val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
-        val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-
+        //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
+        val = negaScout(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
         for(Nodo n : nodo.figli) {
             a = n.euristica;
