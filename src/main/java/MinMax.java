@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 public class MinMax {
     private static boolean bianco;
@@ -10,15 +11,15 @@ public class MinMax {
         private boolean col; // true bianco, false nero
         private float euristica;
         //Scacchiera
-        private BitBoardSuperPazzaSgravata bb;
+        private BitBoard bb;
         private List<Nodo> figli = new LinkedList<>();
         private Mossa pre;
 
         public Nodo() {}
 
-        public Nodo(boolean col, BitBoardSuperPazzaSgravata b, Mossa pre) {
+        public Nodo(boolean col, BitBoard b, Mossa pre) {
             this.col = col;
-            this.bb = (BitBoardSuperPazzaSgravata) b.clone();
+            this.bb = (BitBoard) b.clone();
             this.pre = pre;
         }
 
@@ -151,14 +152,6 @@ public class MinMax {
         return nodoCorrente.euristica;
     }
 
-    /*public static float negamaxTransAlphaBeta(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
-        float origin = alpha;
-
-        TranspositionTable tt = new TranspositionTable();
-
-    }*/
-
-
     private static void generaFigli(Nodo nodo) {
         if((nodo.bb.getNumPedineB() <= 1 && nodo.bb.getNumPedineW() <= 1) || nodo.bb.getNumPedineB() < 1 || nodo.bb.getNumPedineW() < 1)
             return;
@@ -177,7 +170,7 @@ public class MinMax {
         //val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-        val = negaScout(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
+        val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         float a;
         for(Nodo n : nodo.figli) {
             a = n.euristica;
@@ -191,7 +184,7 @@ public class MinMax {
 
     public static void main(String[] args) throws IOException {
         //BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
-        BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata();
+        BitBoard board = new BitBoard();
         System.out.println(board);
         Mossa m;
 
@@ -263,26 +256,26 @@ public class MinMax {
             nn = new Nodo(bianco, nn.bb, null);
             nn.bb.muovi(m, !bianco);
             System.out.println(nn);
-            Instant start = Instant.now();
+            //Instant start = Instant.now();
 // CODE HERE
             m = scegli(nn, true);
-            Instant finish = Instant.now();
-            long timeElapsed = Duration.between(start, finish).toMillis();
+            //Instant finish = Instant.now();
+            //long timeElapsed = Duration.between(start, finish).toMillis();
             nn.bb.muovi(m, bianco);
-            System.out.println("[+] Time elapsed: " + timeElapsed);
+            //System.out.println("[+] Time elapsed: " + timeElapsed);
             System.out.println(m);
             System.out.println(nn);
         }
 
-
+/*
         while(true) {
-            Instant start = Instant.now();
+            //Instant start = Instant.now();
 // CODE HERE
             m = scegli(nn, bianco);
-            Instant finish = Instant.now();
-            long timeElapsed = Duration.between(start, finish).toMillis();
+            //Instant finish = Instant.now();
+            //long timeElapsed = Duration.between(start, finish).toMillis();
             nn.bb.muovi(m, bianco);
-            System.out.println("[+] Time elapsed: " + timeElapsed);
+            //System.out.println("[+] Time elapsed: " + timeElapsed);
             System.out.println(m);
             System.out.println(nn);
             bianco = !bianco;

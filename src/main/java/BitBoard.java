@@ -3,18 +3,18 @@ import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BitBoardSuperPazzaSgravata implements Cloneable {
+public class BitBoard implements Cloneable {
     private BitSet boardB, boardW;
     private byte numPedineB, numPedineW;
 
-    public BitBoardSuperPazzaSgravata() {
+    public BitBoard() {
         this.numPedineB = this.numPedineW = 12;
 
         this.boardW = BitSet.valueOf(new long[] {4547941575690240L});
         this.boardB = BitSet.valueOf(new long[] {2273971846778880L});
     }
 
-    public BitBoardSuperPazzaSgravata(long white, long black) {
+    public BitBoard(long white, long black) {
         this.numPedineB = this.numPedineW = 2;
 
         this.boardW = BitSet.valueOf(new long[] {white});
@@ -136,7 +136,7 @@ public class BitBoardSuperPazzaSgravata implements Cloneable {
 
     public Object clone() {
         try {
-            BitBoardSuperPazzaSgravata obj = (BitBoardSuperPazzaSgravata) super.clone();
+            BitBoard obj = (BitBoard) super.clone();
 
             obj.boardW = (BitSet) this.boardW.clone();
             obj.boardB = (BitSet) this.boardB.clone();
@@ -161,6 +161,7 @@ public class BitBoardSuperPazzaSgravata implements Cloneable {
         StringBuilder sb = new StringBuilder();
         sb.append("#bianche " + numPedineW + "    #nere " + numPedineB + "\n");
         sb.append("CHECKPOINT BIANCO " + Arrays.toString(boardW.toLongArray()) + "     CHECKPOINT NERO " + Arrays.toString(boardB.toLongArray()) + "\n");
+        sb.append("7 6 5 4 3 2 1 0\n");
         for(int i = 63; i >= 0; i-=8) {
             for(int j = i; j > i - 8; j--) {
                 if(boardW.get(j))
@@ -170,7 +171,7 @@ public class BitBoardSuperPazzaSgravata implements Cloneable {
                 else
                     sb.append("- ");
             }
-            sb.append("\n");
+            sb.append(i / 8 + "\n");
         }
         return sb.toString();
     }
