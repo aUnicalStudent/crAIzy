@@ -93,7 +93,7 @@ public class MinMax {
         *Aggiunto negascout da controllare bene
         *
         *
-    */
+    *//*
     public static float negaScout(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
         generaFigli(nodoCorrente);
         if(depth == 0 || nodoCorrente.figli.size() == 0){
@@ -127,6 +127,35 @@ public class MinMax {
             nodoCorrente.euristica= score;
             return score;
         }
+    }*/
+
+    public static float negaScout (Nodo nodo, int depth, float alfa, float beta, boolean col){
+        generaFigli(nodo);
+        if(depth == 0 || nodo.figli.size() == 0){
+            if (col)
+                nodo.euristica = nodo.calcolaEuristica();
+            else
+                nodo.euristica = -nodo.calcolaEuristica();
+            return nodo.euristica;
+        }
+        boolean primo=true;
+        float score;
+        for (Nodo n : nodo.figli) {
+            if (!primo) {
+                score= -negaScout(n, depth-1, (-alfa)-1, -alfa, !col);
+                if(alfa<score && score <beta)
+                    score= -negaScout(n, depth-1, -beta, -score, !col);
+            }else{
+                score= -negaScout(n, depth-1, -beta, -alfa, !col);
+                primo=false;
+            }
+            alfa=Math.max(alfa, score);
+            if(alfa >= beta)
+                break; 
+            
+        }
+        nodo.euristica=alfa;
+        return alfa;
     }
 
 
@@ -170,7 +199,8 @@ public class MinMax {
         //val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-        val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        val=negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
         for(Nodo n : nodo.figli) {
             a = n.euristica;
