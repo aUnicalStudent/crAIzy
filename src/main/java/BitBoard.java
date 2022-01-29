@@ -161,8 +161,11 @@ public class BitBoard implements Cloneable {
         StringBuilder sb = new StringBuilder();
         sb.append("#bianche " + numPedineW + "    #nere " + numPedineB + "\n");
         sb.append("CHECKPOINT BIANCO " + Arrays.toString(boardW.toLongArray()) + "     CHECKPOINT NERO " + Arrays.toString(boardB.toLongArray()) + "\n");
-        sb.append("7 6 5 4 3 2 1 0\n");
+        sb.append("  1 2 3 4 5 6 7 8\n");
+        int a = 65;
         for(int i = 63; i >= 0; i-=8) {
+            sb.append((char)a + " ");
+            a++;
             for(int j = i; j > i - 8; j--) {
                 if(boardW.get(j))
                     sb.append("W ");
@@ -171,7 +174,7 @@ public class BitBoard implements Cloneable {
                 else
                     sb.append("- ");
             }
-            sb.append(i / 8 + "\n");
+            sb.append("\n");
         }
         return sb.toString();
     }

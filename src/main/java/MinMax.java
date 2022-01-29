@@ -31,7 +31,7 @@ public class MinMax {
 
         @Override
         public String toString() {
-            return "Nodo{ max = " + col + "\n\n" + bb + "\n}";
+            return "Nodo{ \n" + bb + "\n}";
         }
     }
 
@@ -199,8 +199,8 @@ public class MinMax {
         //val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-        //val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
-        val=negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
+        val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
         for(Nodo n : nodo.figli) {
             a = n.euristica;

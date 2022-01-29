@@ -47,10 +47,6 @@ public class Mossa {
 
     @Override
     public String toString() {
-        return "Mossa{" +
-                "dir=" + dir +
-                ", r=" + r +
-                ", c=" + c +
-                '}';
+        return "Mossa{ dir= " + getDir() + ", cell= " + getCell() + "}";
     }
 }
