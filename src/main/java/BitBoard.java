@@ -35,8 +35,8 @@ public class BitBoard implements Cloneable {
     }
 
     public boolean muovi(Mossa m, boolean bianco) {
-        if(isPossible(m) < 0)
-            return false;
+       /* if(isPossible(m) < 0)
+            return false;*/
         BitSet board = (BitSet) boardW.clone();
         board.or(boardB);
 
@@ -114,6 +114,9 @@ public class BitBoard implements Cloneable {
         return (byte) (numPedineW - numPedineB);
     }
 
+    public int somma(){
+        return numPedineW+numPedineB;
+    }
     public List<Mossa> mossePossibili(boolean bianco) {
         List<Mossa> m = new LinkedList<>();
 

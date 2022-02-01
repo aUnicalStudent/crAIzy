@@ -29,6 +29,11 @@ public class MinMax {
             return -bb.diff();
         }
 
+        public float euristica2(){
+            if (bb.somma()==0) 
+                return 0;
+            return (float)bb.diff()/bb.somma();
+        }
         @Override
         public String toString() {
             return "Nodo{ \n" + bb + "\n}";
@@ -36,54 +41,59 @@ public class MinMax {
     }
 
     public static float minmax(Nodo nodoCorrente, int depth) {
-        generaFigli(nodoCorrente);
-        if(depth == 0 || nodoCorrente.figli.size() == 0)
-            nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
-        // MASSIMIZZATORE
-        else if(!(nodoCorrente.col ^ bianco)){
-            float eva = Float.NEGATIVE_INFINITY;
-            for(Nodo n : nodoCorrente.figli)
-                eva = Math.max(eva, minmax(n, depth-1));
-            nodoCorrente.euristica = eva;
+        if (depth==0) {
+            //nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+            nodoCorrente.euristica= nodoCorrente.euristica2();
+        }else{
+            generaFigli(nodoCorrente);
+            if (nodoCorrente.figli.size() == 0) {
+                nodoCorrente.euristica = nodoCorrente.euristica2();
+            }else if(!(nodoCorrente.col ^ bianco)){// massimizzatore
+                float eva = Float.NEGATIVE_INFINITY;
+                for(Nodo n : nodoCorrente.figli)
+                    eva = Math.max(eva, minmax(n, depth-1));
+                nodoCorrente.euristica = eva;
+            }
+            // MINIMIZZATORE
+            else {
+                float eva = Float.POSITIVE_INFINITY;
+                for(Nodo n : nodoCorrente.figli)
+                    eva = Math.min(eva, minmax(n, depth-1));
+                nodoCorrente.euristica = eva;
+            }
         }
-        // MINIMIZZATORE
-        else {
-            float eva = Float.POSITIVE_INFINITY;
-            for(Nodo n : nodoCorrente.figli)
-                eva = Math.min(eva, minmax(n, depth-1));
-            nodoCorrente.euristica = eva;
-        }
-
         return nodoCorrente.euristica;
     }
 
     public static float anAlfaBeta(Nodo nodoCorrente, int depth, float alpha, float beta) {
-        generaFigli(nodoCorrente);
-        if(depth == 0 || nodoCorrente.figli.size() == 0)
+        if (depth==0) {
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
-        // MASSIMIZZATORE
-        else if(!(nodoCorrente.col ^ bianco)){
-            float eva = Float.NEGATIVE_INFINITY;
-            for(Nodo n : nodoCorrente.figli) {
-                eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
-                alpha = Math.max(alpha, eva);
-                if (beta <= alpha)
-                    break;
+        }else{
+            generaFigli(nodoCorrente);
+            if (nodoCorrente.figli.size() == 0) {
+                nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+            }else if(!(nodoCorrente.col ^ bianco)){
+                float eva = Float.NEGATIVE_INFINITY;
+                for(Nodo n : nodoCorrente.figli) {
+                    eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
+                    alpha = Math.max(alpha, eva);
+                    if (beta <= alpha)
+                        break;
+                }
+                nodoCorrente.euristica = eva;
             }
-            nodoCorrente.euristica = eva;
-        }
         // MINIMIZZATORE
-        else {
-            float eva = Float.POSITIVE_INFINITY;
-            for(Nodo n : nodoCorrente.figli){
-                eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta));
-                beta = Math.min(beta, eva);
-                if (beta <= alpha)
-                    break;
+            else {
+                float eva = Float.POSITIVE_INFINITY;
+                for(Nodo n : nodoCorrente.figli){
+                    eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta));
+                    beta = Math.min(beta, eva);
+                    if (beta <= alpha)
+                        break;
+                }
+                nodoCorrente.euristica = eva;
             }
-            nodoCorrente.euristica = eva;
         }
-
         return nodoCorrente.euristica;
     }
 
@@ -130,8 +140,15 @@ public class MinMax {
     }*/
 
     public static float negaScout (Nodo nodo, int depth, float alfa, float beta, boolean col){
+        if (depth==0) {
+            if (col)
+                nodo.euristica = nodo.calcolaEuristica();
+            else
+                nodo.euristica = -nodo.calcolaEuristica();
+             return nodo.euristica;
+        }
         generaFigli(nodo);
-        if(depth == 0 || nodo.figli.size() == 0){
+        if (nodo.figli.size() == 0) {
             if (col)
                 nodo.euristica = nodo.calcolaEuristica();
             else
@@ -160,23 +177,29 @@ public class MinMax {
 
 
     public static float negamaxAlphaBeta(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
-        generaFigli(nodoCorrente);
-        if(depth == 0 || nodoCorrente.figli.size() == 0) {
+        if (depth==0) {
             if (col)
                 nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
             else
                 nodoCorrente.euristica = -nodoCorrente.calcolaEuristica();
+             return nodoCorrente.euristica;
         }
-        else {
-            float eva = Float.NEGATIVE_INFINITY;
-            for (Nodo n : nodoCorrente.figli) {
-                eva = Math.max(eva, -negamaxAlphaBeta(n, depth - 1, -beta, -alpha, !col));
-                alpha = Math.max(alpha, eva);
-                if (alpha >= beta)
-                    break;
-            }
-            nodoCorrente.euristica = alpha;
+        generaFigli(nodoCorrente);
+        if (nodoCorrente.figli.size() == 0) {
+            if (col)
+                nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+            else
+                nodoCorrente.euristica = -nodoCorrente.calcolaEuristica();
+            return nodoCorrente.euristica;
         }
+        float eva = Float.NEGATIVE_INFINITY;
+        for (Nodo n : nodoCorrente.figli) {
+            eva = Math.max(eva, -negamaxAlphaBeta(n, depth - 1, -beta, -alpha, !col));
+            alpha = Math.max(alpha, eva);
+            if (alpha >= beta)
+                break;
+        }
+        nodoCorrente.euristica = alpha;
 
         return nodoCorrente.euristica;
     }
@@ -196,10 +219,11 @@ public class MinMax {
 
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
-        //val = !ab? minmax(nodo, 3): anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //val=minmax(nodo, 4);
+        val = !ab? minmax(nodo, 4): anAlfaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-        val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
         for(Nodo n : nodo.figli) {
