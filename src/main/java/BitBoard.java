@@ -35,8 +35,6 @@ public class BitBoard implements Cloneable {
     }
 
     public boolean muovi(Mossa m, boolean bianco) {
-       /* if(isPossible(m) < 0)
-            return false;*/
         BitSet board = (BitSet) boardW.clone();
         board.or(boardB);
 
@@ -55,7 +53,6 @@ public class BitBoard implements Cloneable {
         int flag = isPossible(tmp);
 
         while(flag == 0) {
-            //System.out.println("ASD");
             r1 += tmp.getDir().getY();
             tmp.setR(r1);
 

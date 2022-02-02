@@ -30,10 +30,13 @@ public class MinMax {
         }
 
         public float euristica2(){
-            if (bb.somma()==0) 
+            if (bb.somma() == 0)
                 return 0;
-            return (float)bb.diff()/bb.somma();
+            if(bianco)
+                return (float)bb.diff()/bb.somma();
+            return (float)-bb.diff()/bb.somma();
         }
+
         @Override
         public String toString() {
             return "Nodo{ \n" + bb + "\n}";
