@@ -73,30 +73,33 @@ public class MinMax {
     public static float anAlfaBeta(Nodo nodoCorrente, int depth, float alpha, float beta) {
         if (depth==0) {
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+            return nodoCorrente.euristica*400;
         }else{
             generaFigli(nodoCorrente);
             if (nodoCorrente.figli.size() == 0) {
-                nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
+                nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*400;
             }else if(!(nodoCorrente.col ^ bianco)){
                 float eva = Float.NEGATIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli) {
                     eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
                     alpha = Math.max(alpha, eva);
-                    if (beta <= alpha)
+                    if (beta <= alpha) {
                         break;
+                    }
                 }
-                nodoCorrente.euristica = eva;
+                nodoCorrente.euristica = eva; //TODO aggiustare l'aggiornamento + nodoCorrente.calcolaEuristica()*(1<<depth)
             }
         // MINIMIZZATORE
             else {
                 float eva = Float.POSITIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli){
-                    eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta));
+                    eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta)); //tipo qua
                     beta = Math.min(beta, eva);
-                    if (beta <= alpha)
+                    if (beta <= alpha) {
                         break;
+                    }
                 }
-                nodoCorrente.euristica = eva;
+                nodoCorrente.euristica = eva; //TODO anche qua o sopra
             }
         }
         return nodoCorrente.euristica;
@@ -231,14 +234,15 @@ public class MinMax {
         //val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
-        List<Nodo> list = new LinkedList<>();
-        for(Nodo n : nodo.figli) {
+//        List<Nodo> list = new LinkedList<>();
+        for(Nodo n : nodo.figli) { //TODO attenzione perché val ha anche il valore della radice
             a = n.euristica;
             //System.out.println(a);
             if(a == val)
-                list.add(n);
-//                return n.pre;
+//                list.add(n);
+                return n.pre;
         }
+        /*
         a = Float.NEGATIVE_INFINITY;
         float m1=0;
         Nodo max = null;
@@ -251,7 +255,10 @@ public class MinMax {
         }
 //        System.out.println(list);
         return max.pre;
-//        return null;
+
+         */
+
+        return null;
     }
 
     public static void main(String[] args) throws IOException {
