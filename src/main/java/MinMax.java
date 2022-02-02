@@ -244,19 +244,23 @@ public class MinMax {
         BitBoard board = new BitBoard();
         System.out.println(board);
         Mossa m;
+        Nodo nn = null;
+
+        /*
 
         ServerCommunication sc = new ServerCommunication();
         sc.startConnection("localhost", 8901);
 
         bianco = sc.recMessage().contains("White"); // Messaggio di welcome
-        Nodo nn = new Nodo(bianco, board, null);
+        nn = new Nodo(bianco, board, null);
         //System.out.println(bianco);
-//        sc.recMessage(); // messaggio di minchia per aspettare il secondo giocatore
+//        sc.recMessage(); // messaggio per aspettare il secondo giocatore
 //        System.out.println(sc.recMessage());
-//        sc.recMessage(); // messaggio di minchia per il fatto che tutti sono connessi
+//        sc.recMessage(); // messaggio per il fatto che tutti sono connessi
         System.out.println(sc.recMessage());
         System.out.println(sc.recMessage());
 //        System.out.println(sc.recMessage());
+
 
         if(bianco) {
             System.out.println(sc.recMessage());
@@ -285,16 +289,19 @@ public class MinMax {
                 nn.bb.muovi(m,bianco);
             }
         }
+        */
         //System.out.println(msg);
 
+        // CON GIOCATORI
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Che giocatore sei ? B o W > ");
+        //sc.next();
+        // Da cambiare quando si vuole giocare con un altro giocatore
+        // Se B allora giochi da bianco, Se W giochi da nero
+        bianco = sc.next().equals("B");
+        nn = new Nodo(bianco, board, null);
 
-//        Scanner sc = new Scanner(System.in);
-//        System.out.print("Che giocatore sei ? B o W > ");
-//        sc.next();
-//        bianco = sc.next().equals("White");
-//        bianco = true;
 
-/*
         if(bianco) {
             m = scegli(nn, true);
             System.out.println(m);
