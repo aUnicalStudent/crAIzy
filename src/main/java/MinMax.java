@@ -305,9 +305,8 @@ public class MinMax {
         while(true) {
             System.out.print("> ");
             Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
-            int y = sc.nextInt();
-            int x = sc.nextInt();
-            m = new Mossa(dir, y, x);
+            String y = sc.next().toUpperCase();
+            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
 //            System.out.println(m.getRM() + " " + m.getCM());
 
             nn = new Nodo(bianco, nn.bb, null);
