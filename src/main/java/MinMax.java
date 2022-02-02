@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
+    private static int LIVELLI = 5;
 
     static class Nodo {
         private boolean col; // true bianco, false nero
@@ -73,15 +74,17 @@ public class MinMax {
     public static float anAlfaBeta(Nodo nodoCorrente, int depth, float alpha, float beta) {
         if (depth==0) {
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
-            return nodoCorrente.euristica*400;
+            return nodoCorrente.euristica*(float)Math.pow(10, LIVELLI);
         }else{
             generaFigli(nodoCorrente);
             if (nodoCorrente.figli.size() == 0) {
-                nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*400;
+                nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*10;
             }else if(!(nodoCorrente.col ^ bianco)){
                 float eva = Float.NEGATIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli) {
                     eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
+                    if(depth != LIVELLI)
+                    eva += nodoCorrente.calcolaEuristica()*(float) Math.pow(10, LIVELLI-depth);
                     alpha = Math.max(alpha, eva);
                     if (beta <= alpha) {
                         break;
@@ -94,6 +97,8 @@ public class MinMax {
                 float eva = Float.POSITIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli){
                     eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta)); //tipo qua
+                    if(depth != LIVELLI)
+                    eva += nodoCorrente.calcolaEuristica()*(float) Math.pow(10, LIVELLI-depth);
                     beta = Math.min(beta, eva);
                     if (beta <= alpha) {
                         break;
@@ -104,6 +109,8 @@ public class MinMax {
         }
         return nodoCorrente.euristica;
     }
+
+
 
       /*
         *
@@ -228,14 +235,14 @@ public class MinMax {
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
         //val=minmax(nodo, 4);
-        val = !ab? minmax(nodo, 4): anAlfaBeta(nodo, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        val = !ab? minmax(nodo, 4): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         //val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
 //        List<Nodo> list = new LinkedList<>();
-        for(Nodo n : nodo.figli) { //TODO attenzione perché val ha anche il valore della radice
+        for(Nodo n : nodo.figli) { //TODO verificare LL
             a = n.euristica;
             //System.out.println(a);
             if(a == val)
@@ -263,8 +270,9 @@ public class MinMax {
 
     public static void main(String[] args) throws IOException {
         //BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
-        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
+//        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
 //        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
+        BitBoard board = new BitBoard();
         System.out.println(board);
         Mossa m;
         Nodo nn = null;
