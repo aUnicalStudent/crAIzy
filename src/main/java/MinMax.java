@@ -26,15 +26,18 @@ public class MinMax {
         public float calcolaEuristica() {
             if(bianco)
                 return bb.diff();
-            return -bb.diff();
+            //return -bb.diff();
+            if (bb.somma() == 0)
+                return 0;
+            return ((float)-bb.diff())/bb.somma();
         }
 
         public float euristica2(){
             if (bb.somma() == 0)
                 return 0;
             if(bianco)
-                return (float)bb.diff()/bb.somma();
-            return (float)-bb.diff()/bb.somma();
+                return ((float)bb.diff())/bb.somma();
+            return ((float)-bb.diff())/bb.somma();
         }
 
         @Override
@@ -246,7 +249,7 @@ public class MinMax {
         Mossa m;
         Nodo nn = null;
 
-        /*
+
 
         ServerCommunication sc = new ServerCommunication();
         sc.startConnection("localhost", 8901);
@@ -289,46 +292,46 @@ public class MinMax {
                 nn.bb.muovi(m,bianco);
             }
         }
-        */
+
         //System.out.println(msg);
 
         // CON GIOCATORI
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Che giocatore sei ? B o W > ");
-        //sc.next();
-        // Da cambiare quando si vuole giocare con un altro giocatore
-        // Se B allora giochi da bianco, Se W giochi da nero
-        bianco = sc.next().equals("B");
-        nn = new Nodo(bianco, board, null);
-
-
-        if(bianco) {
-            m = scegli(nn, true);
-            System.out.println(m);
-            nn.bb.muovi(m, bianco);
-            System.out.println(nn);
-        }
-
-        while(true) {
-            System.out.print("> ");
-            Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
-            String y = sc.next().toUpperCase();
-            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
-//            System.out.println(m.getRM() + " " + m.getCM());
-
-            nn = new Nodo(bianco, nn.bb, null);
-            nn.bb.muovi(m, !bianco);
-            System.out.println(nn);
-            //Instant start = Instant.now();
-// CODE HERE
-            m = scegli(nn, true);
-            //Instant finish = Instant.now();
-            //long timeElapsed = Duration.between(start, finish).toMillis();
-            nn.bb.muovi(m, bianco);
-            //System.out.println("[+] Time elapsed: " + timeElapsed);
-            System.out.println(m);
-            System.out.println(nn);
-        }
+//        Scanner sc = new Scanner(System.in);
+//        System.out.print("Che giocatore sei ? B o W > ");
+//        //sc.next();
+//        // Da cambiare quando si vuole giocare con un altro giocatore
+//        // Se B allora giochi da bianco, Se W giochi da nero
+//        bianco = sc.next().equals("B");
+//        nn = new Nodo(bianco, board, null);
+//
+//
+//        if(bianco) {
+//            m = scegli(nn, true);
+//            System.out.println(m);
+//            nn.bb.muovi(m, bianco);
+//            System.out.println(nn);
+//        }
+//
+//        while(true) {
+//            System.out.print("> ");
+//            Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
+//            String y = sc.next().toUpperCase();
+//            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
+////            System.out.println(m.getRM() + " " + m.getCM());
+//
+//            nn = new Nodo(bianco, nn.bb, null);
+//            nn.bb.muovi(m, !bianco);
+//            System.out.println(nn);
+//            //Instant start = Instant.now();
+//// CODE HERE
+//            m = scegli(nn, true);
+//            //Instant finish = Instant.now();
+//            //long timeElapsed = Duration.between(start, finish).toMillis();
+//            nn.bb.muovi(m, bianco);
+//            //System.out.println("[+] Time elapsed: " + timeElapsed);
+//            System.out.println(m);
+//            System.out.println(nn);
+//        }
 
 /*
         while(true) {
