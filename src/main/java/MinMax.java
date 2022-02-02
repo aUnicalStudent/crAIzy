@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -23,16 +25,13 @@ public class MinMax {
             this.pre = pre;
         }
 
-        public float calcolaEuristica() {
+        public float euristica2() { //euristica 1
             if(bianco)
                 return bb.diff();
-            //return -bb.diff();
-            if (bb.somma() == 0)
-                return 0;
-            return ((float)-bb.diff())/bb.somma();
+            return -bb.diff();
         }
 
-        public float euristica2(){
+        public float calcolaEuristica(){
             if (bb.somma() == 0)
                 return 0;
             if(bianco)
@@ -226,31 +225,45 @@ public class MinMax {
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
         //val=minmax(nodo, 4);
-        val = !ab? minmax(nodo, 4): anAlfaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        val = !ab? minmax(nodo, 4): anAlfaBeta(nodo, 5, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         //val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
+        List<Nodo> list = new LinkedList<>();
         for(Nodo n : nodo.figli) {
             a = n.euristica;
             //System.out.println(a);
             if(a == val)
-                return n.pre;
+                list.add(n);
+//                return n.pre;
         }
-
-        return null;
+        a = Float.NEGATIVE_INFINITY;
+        float m1=0;
+        Nodo max = null;
+        for(Nodo n: list){
+            m1= n.calcolaEuristica();
+            if(m1 > a){
+                a = m1;
+                max = n;
+            }
+        }
+//        System.out.println(list);
+        return max.pre;
+//        return null;
     }
 
     public static void main(String[] args) throws IOException {
         //BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
-        BitBoard board = new BitBoard();
+        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
+//        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
         System.out.println(board);
         Mossa m;
         Nodo nn = null;
 
 
-
+/*
         ServerCommunication sc = new ServerCommunication();
         sc.startConnection("localhost", 8901);
 
@@ -294,44 +307,44 @@ public class MinMax {
         }
 
         //System.out.println(msg);
-
+*/
         // CON GIOCATORI
-//        Scanner sc = new Scanner(System.in);
-//        System.out.print("Che giocatore sei ? B o W > ");
-//        //sc.next();
-//        // Da cambiare quando si vuole giocare con un altro giocatore
-//        // Se B allora giochi da bianco, Se W giochi da nero
-//        bianco = sc.next().equals("B");
-//        nn = new Nodo(bianco, board, null);
-//
-//
-//        if(bianco) {
-//            m = scegli(nn, true);
-//            System.out.println(m);
-//            nn.bb.muovi(m, bianco);
-//            System.out.println(nn);
-//        }
-//
-//        while(true) {
-//            System.out.print("> ");
-//            Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
-//            String y = sc.next().toUpperCase();
-//            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
-////            System.out.println(m.getRM() + " " + m.getCM());
-//
-//            nn = new Nodo(bianco, nn.bb, null);
-//            nn.bb.muovi(m, !bianco);
-//            System.out.println(nn);
-//            //Instant start = Instant.now();
-//// CODE HERE
-//            m = scegli(nn, true);
-//            //Instant finish = Instant.now();
-//            //long timeElapsed = Duration.between(start, finish).toMillis();
-//            nn.bb.muovi(m, bianco);
-//            //System.out.println("[+] Time elapsed: " + timeElapsed);
-//            System.out.println(m);
-//            System.out.println(nn);
-//        }
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Che giocatore sei ? B o W > ");
+        //sc.next();
+        // Da cambiare quando si vuole giocare con un altro giocatore
+        // Se B allora giochi da bianco, Se W giochi da nero
+        bianco = sc.next().toUpperCase().equals("B");
+        nn = new Nodo(bianco, board, null);
+
+
+        if(bianco) {
+            m = scegli(nn, true);
+            System.out.println(m);
+            nn.bb.muovi(m, bianco);
+            System.out.println(nn);
+        }
+
+        while(true) {
+            System.out.print("> ");
+            Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
+            String y = sc.next().toUpperCase();
+            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
+//            System.out.println(m.getRM() + " " + m.getCM());
+
+            nn = new Nodo(bianco, nn.bb, null);
+            nn.bb.muovi(m, !bianco);
+            System.out.println(nn);
+            Instant start = Instant.now();
+// CODE HERE
+            m = scegli(nn, true);
+            Instant finish = Instant.now();
+            long timeElapsed = Duration.between(start, finish).toMillis();
+            nn.bb.muovi(m, bianco);
+            System.out.println("[+] Time elapsed: " + timeElapsed);
+            System.out.println(m);
+            System.out.println(nn);
+        }
 
 /*
         while(true) {

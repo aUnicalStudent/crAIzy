@@ -15,10 +15,11 @@ public class BitBoard implements Cloneable {
     }
 
     public BitBoard(long white, long black) {
-        this.numPedineB = this.numPedineW = 2;
 
         this.boardW = BitSet.valueOf(new long[] {white});
         this.boardB = BitSet.valueOf(new long[] {black});
+        this.numPedineB = (byte)boardB.cardinality();
+        this.numPedineW = (byte)boardW.cardinality();
     }
 
     public int isPossible(Mossa m) {
