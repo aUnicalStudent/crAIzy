@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
-    private static int LIVELLI = 5;
+    private static int LIVELLI = 6;
 
     static class Nodo {
         private boolean col; // true bianco, false nero
@@ -48,12 +48,11 @@ public class MinMax {
 
     public static float minmax(Nodo nodoCorrente, int depth) {
         if (depth==0) {
-            //nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
-            nodoCorrente.euristica= nodoCorrente.euristica2();
+            nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
         }else{
             generaFigli(nodoCorrente);
             if (nodoCorrente.figli.size() == 0) {
-                nodoCorrente.euristica = nodoCorrente.euristica2();
+                nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
             }else if(!(nodoCorrente.col ^ bianco)){// massimizzatore
                 float eva = Float.NEGATIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli)
@@ -92,7 +91,7 @@ public class MinMax {
                 }
                 nodoCorrente.euristica = eva; //TODO aggiustare l'aggiornamento + nodoCorrente.calcolaEuristica()*(1<<depth)
             }
-        // MINIMIZZATORE
+            // MINIMIZZATORE
             else {
                 float eva = Float.POSITIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli){
@@ -112,13 +111,13 @@ public class MinMax {
 
 
 
-      /*
-        *
-        *
-        *Aggiunto negascout da controllare bene
-        *
-        *
-    *//*
+    /*
+     *
+     *
+     *Aggiunto negascout da controllare bene
+     *
+     *
+     *//*
     public static float negaScout(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
         generaFigli(nodoCorrente);
         if(depth == 0 || nodoCorrente.figli.size() == 0){
@@ -142,7 +141,7 @@ public class MinMax {
                 }
                 if (score>alpha)
                     alpha=score;
-    
+
                 if(alpha>= beta){
                     nodoCorrente.euristica=alpha;
                     return alpha;
@@ -160,7 +159,7 @@ public class MinMax {
                 nodo.euristica = nodo.calcolaEuristica();
             else
                 nodo.euristica = -nodo.calcolaEuristica();
-             return nodo.euristica;
+            return nodo.euristica;
         }
         generaFigli(nodo);
         if (nodo.figli.size() == 0) {
@@ -183,8 +182,8 @@ public class MinMax {
             }
             alfa=Math.max(alfa, score);
             if(alfa >= beta)
-                break; 
-            
+                break;
+
         }
         nodo.euristica=alfa;
         return alfa;
@@ -197,7 +196,7 @@ public class MinMax {
                 nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
             else
                 nodoCorrente.euristica = -nodoCorrente.calcolaEuristica();
-             return nodoCorrente.euristica;
+            return nodoCorrente.euristica;
         }
         generaFigli(nodoCorrente);
         if (nodoCorrente.figli.size() == 0) {
@@ -234,11 +233,12 @@ public class MinMax {
 
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
+        System.out.println(ab? "AB": "MINMAX");
         //val=minmax(nodo, 4);
-        val = !ab? minmax(nodo, 4): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        val = !ab? minmax(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-        //val = anAlfaBeta(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //val = anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
 //        List<Nodo> list = new LinkedList<>();
@@ -277,10 +277,15 @@ public class MinMax {
         Mossa m;
         Nodo nn = null;
 
+        Scanner s = new Scanner(System.in);
+        System.out.print("# LIVELLI: ");
+        MinMax.LIVELLI = s.nextInt();
+        System.out.print("ALGORITMO (true -> analfa / false -> minmax): ");
+        boolean algo = s.nextBoolean();
 
-/*
         ServerCommunication sc = new ServerCommunication();
-        sc.startConnection("localhost", 8901);
+        //sc.startConnection("localhost", 8901);
+        sc.startConnection("160.97.28.146", 8901);
 
         bianco = sc.recMessage().contains("White"); // Messaggio di welcome
         nn = new Nodo(bianco, board, null);
@@ -295,7 +300,7 @@ public class MinMax {
 
         if(bianco) {
             System.out.println(sc.recMessage());
-            m = scegli(nn, true);
+            m = scegli(nn, algo);
             //System.out.println("BIANCO MOVE " + m.getCell() + "," + m.getDir());
             sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
             nn.bb.muovi(m, bianco);
@@ -313,7 +318,7 @@ public class MinMax {
                 nn = new Nodo(bianco, nn.bb, m);
                 nn.bb.muovi(m,!bianco);
 
-                m = scegli(nn,bianco);
+                m = scegli(nn,algo);
                 if(m == null)
                     break;
                 sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
@@ -322,44 +327,44 @@ public class MinMax {
         }
 
         //System.out.println(msg);
-*/
+
         // CON GIOCATORI
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Che giocatore sei ? B o W > ");
-        //sc.next();
-        // Da cambiare quando si vuole giocare con un altro giocatore
-        // Se B allora giochi da bianco, Se W giochi da nero
-        bianco = sc.next().toUpperCase().equals("B");
-        nn = new Nodo(bianco, board, null);
-
-
-        if(bianco) {
-            m = scegli(nn, true);
-            System.out.println(m);
-            nn.bb.muovi(m, bianco);
-            System.out.println(nn);
-        }
-
-        while(true) {
-            System.out.print("> ");
-            Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
-            String y = sc.next().toUpperCase();
-            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
-//            System.out.println(m.getRM() + " " + m.getCM());
-
-            nn = new Nodo(bianco, nn.bb, null);
-            nn.bb.muovi(m, !bianco);
-            System.out.println(nn);
-            Instant start = Instant.now();
-// CODE HERE
-            m = scegli(nn, true);
-            Instant finish = Instant.now();
-            long timeElapsed = Duration.between(start, finish).toMillis();
-            nn.bb.muovi(m, bianco);
-            System.out.println("[+] Time elapsed: " + timeElapsed);
-            System.out.println(m);
-            System.out.println(nn);
-        }
+//        Scanner sc = new Scanner(System.in);
+//        System.out.print("Che giocatore sei ? B o W > ");
+//        //sc.next();
+//        // Da cambiare quando si vuole giocare con un altro giocatore
+//        // Se B allora giochi da bianco, Se W giochi da nero
+//        bianco = sc.next().toUpperCase().equals("B");
+//        nn = new Nodo(bianco, board, null);
+//
+//
+//        if(bianco) {
+//            m = scegli(nn, true);
+//            System.out.println(m);
+//            nn.bb.muovi(m, bianco);
+//            System.out.println(nn);
+//        }
+//
+//        while(true) {
+//            System.out.print("> ");
+//            Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
+//            String y = sc.next().toUpperCase();
+//            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
+////            System.out.println(m.getRM() + " " + m.getCM());
+//
+//            nn = new Nodo(bianco, nn.bb, null);
+//            nn.bb.muovi(m, !bianco);
+//            System.out.println(nn);
+//            Instant start = Instant.now();
+//// CODE HERE
+//            m = scegli(nn, true);
+//            Instant finish = Instant.now();
+//            long timeElapsed = Duration.between(start, finish).toMillis();
+//            nn.bb.muovi(m, bianco);
+//            System.out.println("[+] Time elapsed: " + timeElapsed);
+//            System.out.println(m);
+//            System.out.println(nn);
+//        }
 
 /*
         while(true) {
