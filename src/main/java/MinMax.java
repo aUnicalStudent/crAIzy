@@ -3,12 +3,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
-    private static int LIVELLI = 6;
+    private static int LIVELLI = 5;
 
     static class Nodo {
         private boolean col; // true bianco, false nero
@@ -32,7 +33,7 @@ public class MinMax {
             return -bb.diff();
         }
 
-        public float calcolaEuristica(){
+        public float calcolaEuristica2(){
             if (bb.somma() == 0)
                 return 0;
             if(bianco)
@@ -70,88 +71,85 @@ public class MinMax {
         return nodoCorrente.euristica;
     }
 
-    public static float anAlfaBeta(Nodo nodoCorrente, int depth, float alpha, float beta) {
+    public static float minmaxCONLIVELLIWOW(Nodo nodoCorrente, int depth) {
         if (depth==0) {
-            nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
-            return nodoCorrente.euristica*(float)Math.pow(10, LIVELLI);
+            nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
         }else{
             generaFigli(nodoCorrente);
             if (nodoCorrente.figli.size() == 0) {
-                nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*10;
-            }else if(!(nodoCorrente.col ^ bianco)){
+                nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
+            }else if(!(nodoCorrente.col ^ bianco)){// massimizzatore
                 float eva = Float.NEGATIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli) {
-                    eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
-                    if(depth != LIVELLI)
-                    eva += nodoCorrente.calcolaEuristica()*(float) Math.pow(10, LIVELLI-depth);
-                    alpha = Math.max(alpha, eva);
-                    if (beta <= alpha) {
-                        break;
-                    }
+                    eva = Math.max(eva, minmax(n, depth - 1));
+                    if (depth != LIVELLI)
+                        eva += nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
                 }
-                nodoCorrente.euristica = eva; //TODO aggiustare l'aggiornamento + nodoCorrente.calcolaEuristica()*(1<<depth)
+                nodoCorrente.euristica = eva;
             }
             // MINIMIZZATORE
             else {
                 float eva = Float.POSITIVE_INFINITY;
-                for(Nodo n : nodoCorrente.figli){
-                    eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta)); //tipo qua
-                    if(depth != LIVELLI)
-                    eva += nodoCorrente.calcolaEuristica()*(float) Math.pow(10, LIVELLI-depth);
-                    beta = Math.min(beta, eva);
-                    if (beta <= alpha) {
-                        break;
-                    }
+                for(Nodo n : nodoCorrente.figli) {
+                    eva = Math.min(eva, minmax(n, depth - 1));
+                    if (depth != LIVELLI)
+                        eva += nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
                 }
-                nodoCorrente.euristica = eva; //TODO anche qua o sopra
+                nodoCorrente.euristica = eva;
             }
         }
         return nodoCorrente.euristica;
     }
 
+    public static float anAlfaBeta(Nodo nodoCorrente, int depth, float alpha, float beta) {
+        if (depth==0) {
+            nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
+            return nodoCorrente.euristica;
+        }
 
-
-    /*
-     *
-     *
-     *Aggiunto negascout da controllare bene
-     *
-     *
-     *//*
-    public static float negaScout(Nodo nodoCorrente, int depth, float alpha, float beta, boolean col) {
         generaFigli(nodoCorrente);
-        if(depth == 0 || nodoCorrente.figli.size() == 0){
-                if (col)
-                    nodoCorrente.euristica = nodoCorrente.calcolaEuristica();
-                else
-                    nodoCorrente.euristica = -nodoCorrente.calcolaEuristica();
-                return nodoCorrente.euristica;
-
+        if (nodoCorrente.figli.size() == 0) {
+            nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
+            return nodoCorrente.euristica;
         }
-        else{
-            float score= Float.NEGATIVE_INFINITY, n1= beta, cur;
-            for (Nodo n : nodoCorrente.figli) {
-                cur= -negaScout(n, depth-1, -n1, -alpha, !col);
-                if (cur > score) {
-                    if (n1==beta) {
-                        score= cur;
-                    }else{
-                        score=-negaScout(n, depth-1, -beta, -cur, !col);
-                    }
-                }
-                if (score>alpha)
-                    alpha=score;
 
-                if(alpha>= beta){
-                    nodoCorrente.euristica=alpha;
-                    return alpha;
+        // MASSIMIZZATORE
+        if(!(nodoCorrente.col ^ bianco)) {
+            float eva = Float.NEGATIVE_INFINITY;
+            for(Nodo n : nodoCorrente.figli) {
+                eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
+                if(depth != LIVELLI) {
+                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
+                    System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MAX = " + (eva+asd));
+                    eva += asd;
                 }
-                n1= alpha+1;
+                alpha = Math.max(alpha, eva);
+                if (beta <= alpha) {
+                    break;
+                }
             }
-            nodoCorrente.euristica= score;
-            return score;
+            nodoCorrente.euristica = eva;
+            return nodoCorrente.euristica;
         }
-    }*/
+        // MINIMIZZATORE
+        else {
+            float eva = Float.POSITIVE_INFINITY;
+            for(Nodo n : nodoCorrente.figli){
+                eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta)); //tipo qua
+                if(depth != LIVELLI) {
+                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
+                    System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MIN = " + (eva+asd));
+                    eva += asd;
+                }
+                beta = Math.min(beta, eva);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            nodoCorrente.euristica = eva;
+            return nodoCorrente.euristica;
+        }
+    }
 
     public static float negaScout (Nodo nodo, int depth, float alfa, float beta, boolean col){
         if (depth==0) {
@@ -233,43 +231,28 @@ public class MinMax {
 
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
-        System.out.println(ab? "AB": "MINMAX");
-        //val=minmax(nodo, 4);
-        val = !ab? minmax(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        //System.out.println(ab? "AB": "MINMAX");
+        val = !ab? minmaxCONLIVELLIWOW(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         //val = anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         float a;
-//        List<Nodo> list = new LinkedList<>();
-        for(Nodo n : nodo.figli) { //TODO verificare LL
+        Mossa mossa = null;
+
+        for(Nodo n : nodo.figli) {
             a = n.euristica;
-            //System.out.println(a);
-            if(a == val)
-//                list.add(n);
-                return n.pre;
-        }
-        /*
-        a = Float.NEGATIVE_INFINITY;
-        float m1=0;
-        Nodo max = null;
-        for(Nodo n: list){
-            m1= n.calcolaEuristica();
-            if(m1 > a){
-                a = m1;
-                max = n;
+            if(a == val) {
+                mossa = n.pre;
+                System.out.println(mossa + " -> " + a);
+                return mossa;
             }
         }
-//        System.out.println(list);
-        return max.pre;
 
-         */
-
-        return null;
+        return mossa;
     }
 
     public static void main(String[] args) throws IOException {
-        //BitBoardSuperPazzaSgravata board = new BitBoardSuperPazzaSgravata(1152921642045800448L, 2305843009213693968L);
 //        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
 //        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
         BitBoard board = new BitBoard();
@@ -278,157 +261,101 @@ public class MinMax {
         Nodo nn = null;
 
         Scanner s = new Scanner(System.in);
-        System.out.print("# LIVELLI: ");
-        MinMax.LIVELLI = s.nextInt();
-        System.out.print("ALGORITMO (true -> analfa / false -> minmax): ");
-        boolean algo = s.nextBoolean();
+        System.out.print("CON CHI CAZZO VUOI GIOCARE ? G o S -> ");
 
-        ServerCommunication sc = new ServerCommunication();
-        //sc.startConnection("localhost", 8901);
-        sc.startConnection("160.97.28.146", 8901);
+        if(s.next().toUpperCase().equals("S")) {
+            System.out.print("# LIVELLI: ");
+            MinMax.LIVELLI = s.nextInt();
+            System.out.print("ALGORITMO (true -> analfa / false -> minmax): ");
+            boolean algo = s.nextBoolean();
 
-        bianco = sc.recMessage().contains("White"); // Messaggio di welcome
-        nn = new Nodo(bianco, board, null);
-        //System.out.println(bianco);
-//        sc.recMessage(); // messaggio per aspettare il secondo giocatore
-//        System.out.println(sc.recMessage());
-//        sc.recMessage(); // messaggio per il fatto che tutti sono connessi
-        System.out.println(sc.recMessage());
-        System.out.println(sc.recMessage());
-//        System.out.println(sc.recMessage());
+            // CON SERVER
+            ServerCommunication sc = new ServerCommunication();
 
+            System.out.print("LOCALHOST ? Y o N -> ");
+            if(s.next().toUpperCase().equals("Y"))
+                sc.startConnection("localhost", 8901);
+            else sc.startConnection("160.97.28.146", 8901);
 
-        if(bianco) {
+            bianco = sc.recMessage().contains("White"); // Messaggio di welcome
+            nn = new Nodo(bianco, board, null);
+            //System.out.println(bianco);
+            //        sc.recMessage(); // messaggio per aspettare il secondo giocatore
+            //        System.out.println(sc.recMessage());
+            //        sc.recMessage(); // messaggio per il fatto che tutti sono connessi
             System.out.println(sc.recMessage());
-            m = scegli(nn, algo);
-            //System.out.println("BIANCO MOVE " + m.getCell() + "," + m.getDir());
-            sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
-            nn.bb.muovi(m, bianco);
-            System.out.println(nn.bb);
-        }
+            System.out.println(sc.recMessage());
+            //        System.out.println(sc.recMessage());
 
-        String msg = "";
-        while(msg != null) {
-            msg = sc.recMessage();
-            System.out.println("MESSAGGIO DAL SERVER " + msg);
-            if(msg != null && msg.contains("OPPONENT_MOVE")) {
-                String move [] = msg.split(" ")[1].split(",");
-                m = new Mossa(Direzione.valueOf(move[1]),move[0].charAt(0),Integer.parseInt(move[0].substring(1)));
-                //System.out.println("mossa dell'avversario: " + m);
-                nn = new Nodo(bianco, nn.bb, m);
-                nn.bb.muovi(m,!bianco);
 
-                m = scegli(nn,algo);
-                if(m == null)
-                    break;
+            if (bianco) {
+                System.out.println(sc.recMessage());
+                m = scegli(nn, algo);
+                //System.out.println("BIANCO MOVE " + m.getCell() + "," + m.getDir());
                 sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
-                nn.bb.muovi(m,bianco);
+                nn.bb.muovi(m, bianco);
+                System.out.println(nn.bb);
+            }
+
+            String msg = "";
+            while (msg != null) {
+                msg = sc.recMessage();
+                System.out.println("MESSAGGIO DAL SERVER " + msg);
+                if (msg != null && msg.contains("OPPONENT_MOVE")) {
+                    String move[] = msg.split(" ")[1].split(",");
+                    m = new Mossa(Direzione.valueOf(move[1]), move[0].charAt(0), Integer.parseInt(move[0].substring(1)));
+                    //System.out.println("mossa dell'avversario: " + m);
+                    nn = new Nodo(bianco, nn.bb, m);
+                    nn.bb.muovi(m, !bianco);
+
+                    m = scegli(nn, algo);
+                    if (m == null)
+                        break;
+                    sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
+                    nn.bb.muovi(m, bianco);
+                }
             }
         }
 
         //System.out.println(msg);
+        else {
+            // CON GIOCATORI
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Che giocatore sei ? B o W > ");
+            //sc.next();
+            // Da cambiare quando si vuole giocare con un altro giocatore
+            // Se B allora giochi da bianco, Se W giochi da nero
+            bianco = sc.next().toUpperCase().equals("B");
+            nn = new Nodo(bianco, board, null);
 
-        // CON GIOCATORI
-//        Scanner sc = new Scanner(System.in);
-//        System.out.print("Che giocatore sei ? B o W > ");
-//        //sc.next();
-//        // Da cambiare quando si vuole giocare con un altro giocatore
-//        // Se B allora giochi da bianco, Se W giochi da nero
-//        bianco = sc.next().toUpperCase().equals("B");
-//        nn = new Nodo(bianco, board, null);
-//
-//
-//        if(bianco) {
-//            m = scegli(nn, true);
-//            System.out.println(m);
-//            nn.bb.muovi(m, bianco);
-//            System.out.println(nn);
-//        }
-//
-//        while(true) {
-//            System.out.print("> ");
-//            Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
-//            String y = sc.next().toUpperCase();
-//            m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
-////            System.out.println(m.getRM() + " " + m.getCM());
-//
-//            nn = new Nodo(bianco, nn.bb, null);
-//            nn.bb.muovi(m, !bianco);
-//            System.out.println(nn);
-//            Instant start = Instant.now();
-//// CODE HERE
-//            m = scegli(nn, true);
-//            Instant finish = Instant.now();
-//            long timeElapsed = Duration.between(start, finish).toMillis();
-//            nn.bb.muovi(m, bianco);
-//            System.out.println("[+] Time elapsed: " + timeElapsed);
-//            System.out.println(m);
-//            System.out.println(nn);
-//        }
 
-/*
-        while(true) {
-            //Instant start = Instant.now();
-// CODE HERE
-            m = scegli(nn, bianco);
-            //Instant finish = Instant.now();
-            //long timeElapsed = Duration.between(start, finish).toMillis();
-            nn.bb.muovi(m, bianco);
-            //System.out.println("[+] Time elapsed: " + timeElapsed);
-            System.out.println(m);
-            System.out.println(nn);
-            bianco = !bianco;
-            nn = new Nodo(bianco, nn.bb, null);
-            System.out.println(!bianco? "BIANCO" : "NERO");
+            if (bianco) {
+                m = scegli(nn, true);
+                System.out.println(m);
+                nn.bb.muovi(m, bianco);
+                System.out.println(nn);
+            }
+
+            while (true) {
+                System.out.print("> ");
+                Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
+                String y = sc.next().toUpperCase();
+                m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
+                //            System.out.println(m.getRM() + " " + m.getCM());
+
+                nn = new Nodo(bianco, nn.bb, null);
+                nn.bb.muovi(m, !bianco);
+                System.out.println(nn);
+                Instant start = Instant.now();
+
+                m = scegli(nn, true);
+                Instant finish = Instant.now();
+                long timeElapsed = Duration.between(start, finish).toMillis();
+                nn.bb.muovi(m, bianco);
+                System.out.println("[+] Time elapsed: " + timeElapsed);
+                System.out.println(m);
+                System.out.println(nn);
+            }
         }
-
-        /*
-        // INIT
-        board.muovi(new Mossa(Direzione.NE, 5, 3), true);
-        System.out.println("\nDopo la mossa NE, 5, 3, true");
-        System.out.println(board);
-
-        board.muovi(new Mossa(Direzione.E, 4, 1), false);
-        System.out.println("\nDopo la mossa E, 4, 1, false");
-        System.out.println(board);
-
-        // TEST ESPLOSIONE
-        board.muovi(new Mossa(Direzione.NW, 4, 2), true);
-        System.out.println("\nDopo la mossa NW, 4, 2, true");
-        System.out.println(board);
-
-
-        // CASO LIMITE -> BORDO
-        board.muovi(Mossa.E, 3, 1, true);
-        System.out.println("\nDopo la mossa E, 3, 1, true");
-        System.out.println(board);
-
-        board.muovi(Mossa.W, 3, 6, false);
-        System.out.println("\nDopo la mossa W, 3, 6, false");
-        System.out.println(board);
-
-        board.muovi(Mossa.W, 4, 6, true);
-        System.out.println("\nDopo la mossa W, 4, 6, true");
-        System.out.println(board);
-
-        board.muovi(Mossa.E, 5, 2, false);
-        System.out.println("\nDopo la mossa E, 5, 2, false");
-        System.out.println(board);
-
-        board.muovi(Mossa.N, 3, 0, true);
-        System.out.println("\nDopo la mossa N, 3, 0, true");
-        System.out.println(board);
-
-        // CLONE
-        BitBoardSuperPazzaSgravata clonata = (BitBoardSuperPazzaSgravata) board.clone();
-
-        clonata.muovi(Mossa.NE, 5, 3, true);
-        System.out.println("\nDopo la mossa NE, 5, 3, true");
-        System.out.println(clonata);
-
-        board.muovi(Mossa.S, 1, 4, false);
-        System.out.println("\nDopo la mossa S, 4, 1, false");
-        System.out.println(board);
-        */
     }
 }
