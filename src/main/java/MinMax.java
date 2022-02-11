@@ -27,7 +27,7 @@ public class MinMax {
             this.pre = pre;
         }
 
-        public float euristica2() { //euristica 1
+        public float calcolaEuristica() { //euristica 1
             if(bianco)
                 return bb.diff();
             return -bb.diff();
@@ -43,7 +43,7 @@ public class MinMax {
 
         @Override
         public String toString() {
-            return "Nodo{ \n" + bb + "\n}";
+            return "Nodo{ eur " + euristica + " calcolaEur " + calcolaEuristica() + " max = "+ col + "\n" + bb + "\n}";
         }
     }
 
@@ -78,7 +78,7 @@ public class MinMax {
             generaFigli(nodoCorrente);
             if (nodoCorrente.figli.size() == 0) {
                 nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
-            }else if(!(nodoCorrente.col ^ bianco)){// massimizzatore
+            }else if(nodoCorrente.col==bianco){// massimizzatore
                 float eva = Float.NEGATIVE_INFINITY;
                 for(Nodo n : nodoCorrente.figli) {
                     eva = Math.max(eva, minmax(n, depth - 1));
@@ -106,7 +106,7 @@ public class MinMax {
         Nodo x = null;
         float curr;
         if (depth==0) {
-            nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
+            nodoCorrente.euristica = nodoCorrente.calcolaEuristica();//*(float)Math.pow(10, LIVELLI);
             return nodoCorrente.euristica;
         }
 
@@ -117,7 +117,7 @@ public class MinMax {
         }
 
         // MASSIMIZZATORE
-        if(!(nodoCorrente.col ^ bianco)) {
+        if(nodoCorrente.col==bianco) {
             float eva = Float.NEGATIVE_INFINITY;
             for(Nodo n : nodoCorrente.figli) {
                 //eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
@@ -137,6 +137,8 @@ public class MinMax {
                 }
             }
             nodoCorrente.euristica = eva;
+            nodoCorrente.figli.clear();
+            nodoCorrente.figli.add(x);
             return nodoCorrente.euristica;
         }
         // MINIMIZZATORE
@@ -279,9 +281,9 @@ public class MinMax {
     }
 
     public static void main(String[] args) throws IOException {
-//        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
+        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
 //        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
-        BitBoard board = new BitBoard();
+//        BitBoard board = new BitBoard();
         System.out.println(board);
         Mossa m;
         Nodo nn = null;
