@@ -101,7 +101,10 @@ public class MinMax {
         return nodoCorrente.euristica;
     }
 
+    //TODO Bisogna effettuare ulteriore debug
     public static float anAlfaBeta(Nodo nodoCorrente, int depth, float alpha, float beta) {
+        Nodo x = null;
+        float curr;
         if (depth==0) {
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
             return nodoCorrente.euristica;
@@ -117,12 +120,17 @@ public class MinMax {
         if(!(nodoCorrente.col ^ bianco)) {
             float eva = Float.NEGATIVE_INFINITY;
             for(Nodo n : nodoCorrente.figli) {
-                eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
-                if(depth != LIVELLI) {
-                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
-                    System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MAX = " + (eva+asd));
-                    eva += asd;
+                //eva = Math.max(eva, anAlfaBeta(n, depth - 1, alpha, beta));
+                curr = anAlfaBeta(n, depth - 1, alpha, beta);
+                if(eva < curr){
+                    eva = curr;
+                    x = n;
                 }
+//                if(depth != LIVELLI) {
+//                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
+////                    System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MAX = " + (eva+asd));
+//                    eva += asd;
+//                }
                 alpha = Math.max(alpha, eva);
                 if (beta <= alpha) {
                     break;
@@ -135,18 +143,25 @@ public class MinMax {
         else {
             float eva = Float.POSITIVE_INFINITY;
             for(Nodo n : nodoCorrente.figli){
-                eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta)); //tipo qua
-                if(depth != LIVELLI) {
-                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
-                    System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MIN = " + (eva+asd));
-                    eva += asd;
+                //eva = Math.min(eva, anAlfaBeta(n, depth-1, alpha, beta)); //tipo qua
+                curr = anAlfaBeta(n, depth - 1, alpha, beta);
+                if(eva > curr){
+                    eva = curr;
+                    x = n;
                 }
+//                if(depth != LIVELLI) {
+//                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
+//                    //System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MIN = " + (eva+asd));
+//                    eva += asd;
+//                }
                 beta = Math.min(beta, eva);
                 if (beta <= alpha) {
                     break;
                 }
             }
             nodoCorrente.euristica = eva;
+            nodoCorrente.figli.clear();
+            nodoCorrente.figli.add(x);
             return nodoCorrente.euristica;
         }
     }
@@ -244,12 +259,23 @@ public class MinMax {
             a = n.euristica;
             if(a == val) {
                 mossa = n.pre;
+                System.out.println("----------------------------------");
+                stampaGerarchia(n);
+                System.out.println("----------------------------------");
                 System.out.println(mossa + " -> " + a);
                 return mossa;
             }
         }
 
         return mossa;
+    }
+
+    private static void stampaGerarchia(Nodo n) {
+        System.out.println(n);
+        if(n.figli.isEmpty()) {
+            return;
+        }
+        stampaGerarchia(n.figli.get(0));
     }
 
     public static void main(String[] args) throws IOException {
