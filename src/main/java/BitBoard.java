@@ -1,7 +1,4 @@
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class BitBoard implements Cloneable {
     private BitSet boardB, boardW;
@@ -179,4 +176,14 @@ public class BitBoard implements Cloneable {
         }
         return sb.toString();
     }
+
+    //TODO in caso rimuovere
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BitBoard board = (BitBoard) o;
+        return boardB.equals(board.boardB) && boardW.equals(board.boardW);
+    }
+
 }

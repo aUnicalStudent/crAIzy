@@ -1,22 +1,20 @@
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
     private static int LIVELLI = 5;
 
-    static class Nodo {
+    static class Nodo implements Comparable<Nodo>{
         private boolean col; // true bianco, false nero
         private float euristica;
         //Scacchiera
         private BitBoard bb;
-        private List<Nodo> figli = new LinkedList<>();
+        private Queue<Nodo> figli = new PriorityQueue<>();
         private Mossa pre;
 
         public Nodo() {}
@@ -27,13 +25,13 @@ public class MinMax {
             this.pre = pre;
         }
 
-        public float calcolaEuristica() { //euristica 1
+        public float calcolaEuristica2() { //euristica 1
             if(bianco)
                 return bb.diff();
             return -bb.diff();
         }
 
-        public float calcolaEuristica2(){
+        public float calcolaEuristica(){
             if (bb.somma() == 0)
                 return 0;
             if(bianco)
@@ -44,6 +42,29 @@ public class MinMax {
         @Override
         public String toString() {
             return "Nodo{ eur " + euristica + " calcolaEur " + calcolaEuristica() + " max = "+ col + "\n" + bb + "\n}";
+        }
+
+        @Override
+        public int compareTo(Nodo o) {
+//            if(o.calcolaEuristica()!=calcolaEuristica())
+                return (int) (o.calcolaEuristica() - calcolaEuristica());
+//            return 1;
+
+//            return (int) (o.calcolaEuristica() - calcolaEuristica());
+        }
+
+        //TODO in caso rimuovere
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Nodo nodo = (Nodo) o;
+            return bb.equals(nodo.bb);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(col, euristica, bb, figli, pre);
         }
     }
 
@@ -106,11 +127,13 @@ public class MinMax {
         Nodo x = null;
         float curr;
         if (depth==0) {
-            nodoCorrente.euristica = nodoCorrente.calcolaEuristica();//*(float)Math.pow(10, LIVELLI);
+            nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
             return nodoCorrente.euristica;
         }
 
         generaFigli(nodoCorrente);
+//        if(depth==LIVELLI)
+//            Collections.sort(nodoCorrente.figli);
         if (nodoCorrente.figli.size() == 0) {
             nodoCorrente.euristica = nodoCorrente.calcolaEuristica()*(float)Math.pow(10, LIVELLI);
             return nodoCorrente.euristica;
@@ -137,8 +160,8 @@ public class MinMax {
                 }
             }
             nodoCorrente.euristica = eva;
-            nodoCorrente.figli.clear();
-            nodoCorrente.figli.add(x);
+            //nodoCorrente.figli.clear();
+            //nodoCorrente.figli.add(x);
             return nodoCorrente.euristica;
         }
         // MINIMIZZATORE
@@ -151,19 +174,19 @@ public class MinMax {
                     eva = curr;
                     x = n;
                 }
-//                if(depth != LIVELLI) {
-//                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
-//                    //System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MIN = " + (eva+asd));
-//                    eva += asd;
-//                }
+                if(depth != LIVELLI) {
+                    float asd = nodoCorrente.calcolaEuristica() * (float) Math.pow(10, LIVELLI - depth);
+                    //System.out.println("DEPTH = " + depth + " | " + asd + " + " + eva + " MIN = " + (eva+asd));
+                    eva += asd;
+                }
                 beta = Math.min(beta, eva);
                 if (beta <= alpha) {
                     break;
                 }
             }
             nodoCorrente.euristica = eva;
-            nodoCorrente.figli.clear();
-            nodoCorrente.figli.add(x);
+            //nodoCorrente.figli.clear();
+            //nodoCorrente.figli.add(x);
             return nodoCorrente.euristica;
         }
     }
@@ -249,7 +272,7 @@ public class MinMax {
     private static Mossa scegli(Nodo nodo, boolean ab) {
         float val;
         //System.out.println(ab? "AB": "MINMAX");
-        val = !ab? minmaxCONLIVELLIWOW(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        val = !ab? minmax(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         //val = anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
@@ -262,7 +285,8 @@ public class MinMax {
             if(a == val) {
                 mossa = n.pre;
                 System.out.println("----------------------------------");
-                stampaGerarchia(n);
+////                stampaGerarchia(n);
+                System.out.println(nodo.figli);
                 System.out.println("----------------------------------");
                 System.out.println(mossa + " -> " + a);
                 return mossa;
@@ -277,19 +301,19 @@ public class MinMax {
         if(n.figli.isEmpty()) {
             return;
         }
-        stampaGerarchia(n.figli.get(0));
+        stampaGerarchia(n.figli.iterator().next());
     }
 
     public static void main(String[] args) throws IOException {
-        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
-//        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
+//        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
+        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
 //        BitBoard board = new BitBoard();
         System.out.println(board);
         Mossa m;
         Nodo nn = null;
 
         Scanner s = new Scanner(System.in);
-        System.out.print("CON CHI CAZZO VUOI GIOCARE ? G o S -> ");
+        System.out.print("CON CHI VUOI GIOCARE ? G o S -> ");
 
         if(s.next().toUpperCase().equals("S")) {
             System.out.print("# LIVELLI: ");
@@ -350,6 +374,7 @@ public class MinMax {
             // CON GIOCATORI
             Scanner sc = new Scanner(System.in);
             System.out.print("Che giocatore sei ? B o W > ");
+            boolean ab = true;
             //sc.next();
             // Da cambiare quando si vuole giocare con un altro giocatore
             // Se B allora giochi da bianco, Se W giochi da nero
@@ -358,9 +383,13 @@ public class MinMax {
 
 
             if (bianco) {
-                m = scegli(nn, true);
+                Instant start = Instant.now();
+                m = scegli(nn, ab);
+                Instant finish = Instant.now();
                 System.out.println(m);
+                long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);
+                System.out.println("[+] Time elapsed: " + timeElapsed);
                 System.out.println(nn);
             }
 
@@ -376,7 +405,7 @@ public class MinMax {
                 System.out.println(nn);
                 Instant start = Instant.now();
 
-                m = scegli(nn, true);
+                m = scegli(nn, ab);
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);
