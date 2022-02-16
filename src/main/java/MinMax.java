@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
-    private static int LIVELLI = 5;
+    private static int LIVELLI = 6;
 
     static class Nodo implements Comparable<Nodo>{
         private boolean col; // true bianco, false nero
@@ -296,6 +296,31 @@ public class MinMax {
         return mossa;
     }
 
+    private static Mossa ingannoDiDrake(int colonna) {
+        Mossa m = null;
+
+        List<Mossa> mha = new ArrayList<>(4);
+
+        if(bianco) {
+            mha.add(new Mossa(Direzione.NE, 'C', 5));
+            mha.add(new Mossa(Direzione.NE, 'D', 6));
+            mha.add(new Mossa(Direzione.SW, 'E', 3));
+            mha.add(new Mossa(Direzione.SW, 'F', 4));
+        }
+        else {
+            if(colonna >= 5) {
+                mha.add(new Mossa(Direzione.NW, 'D', 3));
+                mha.add(new Mossa(Direzione.NW, 'C', 4));
+            }
+            else {
+                mha.add(new Mossa(Direzione.SE, 'F', 5));
+                mha.add(new Mossa(Direzione.SE, 'E', 6));
+            }
+        }
+
+        return mha.get(new Random().nextInt(mha.size()));
+    }
+
     private static void stampaGerarchia(Nodo n) {
         System.out.println(n);
         if(n.figli.isEmpty()) {
@@ -306,8 +331,9 @@ public class MinMax {
 
     public static void main(String[] args) throws IOException {
 //        BitBoard board = new BitBoard(72057886800609344L, 4647719222420963344L);
-        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
-//        BitBoard board = new BitBoard();
+//        BitBoard board = new BitBoard(-9223372015379939328L, 4611690425064357888L);
+        BitBoard board = new BitBoard();
+//        BitBoard board = new BitBoard(2L, 129L);
         System.out.println(board);
         Mossa m;
         Nodo nn = null;
@@ -384,12 +410,34 @@ public class MinMax {
 
             if (bianco) {
                 Instant start = Instant.now();
-                m = scegli(nn, ab);
+//                m = scegli(nn, ab);
+                m = ingannoDiDrake(0);
                 Instant finish = Instant.now();
                 System.out.println(m);
                 long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);
                 System.out.println("[+] Time elapsed: " + timeElapsed);
+                System.out.println(nn);
+            }
+            else {
+                System.out.print("> ");
+                Direzione dir = Direzione.valueOf(sc.next().toUpperCase());
+                String y = sc.next().toUpperCase();
+                m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
+                //            System.out.println(m.getRM() + " " + m.getCM());
+
+                nn = new Nodo(bianco, nn.bb, null);
+                nn.bb.muovi(m, !bianco);
+                System.out.println(nn);
+                Instant start = Instant.now();
+
+                //m = ingannoDiDrake(Integer.parseInt(String.valueOf(y.charAt(1))));
+                m = scegli(nn, ab);
+                Instant finish = Instant.now();
+                long timeElapsed = Duration.between(start, finish).toMillis();
+                nn.bb.muovi(m, bianco);
+                System.out.println("[+] Time elapsed: " + timeElapsed);
+                System.out.println(m);
                 System.out.println(nn);
             }
 
