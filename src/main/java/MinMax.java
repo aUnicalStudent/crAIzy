@@ -270,7 +270,7 @@ public class MinMax {
         }
     }
 
-    private static Mossa scegli(Nodo nodo, int ab) {
+    private static Nodo scegli(Nodo nodo, int ab) {
         float val = 0;
         //System.out.println(ab? "AB": "MINMAX");
 //        val = !ab? minmax(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
@@ -289,22 +289,23 @@ public class MinMax {
             val = negaScout(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
 
         float a;
-        Mossa mossa = null;
+//        Mossa mossa = null;
 
         for(Nodo n : nodo.figli) {
             a = n.euristica;
             if(a == val) {
-                mossa = n.pre;
+//                mossa = n.pre;
 //                System.out.println("----------------------------------");
 //////                stampaGerarchia(n);
 //                System.out.println(nodo.figli);
 //                System.out.println("----------------------------------");
 //                System.out.println(mossa + " -> " + a);
-                return mossa;
+                return n;
             }
         }
 
-        return mossa;
+//        return mossa;
+        return null;
     }
 
     private static Mossa ingannoDiDrake(int colonna) {
@@ -367,7 +368,7 @@ public class MinMax {
             else sc.startConnection("160.97.28.146", 8901);
 
             bianco = sc.recMessage().contains("White"); // Messaggio di welcome
-            nn = new Nodo(bianco, board, null);
+            nn = new Nodo(true, board, null);
             //System.out.println(bianco);
             //        sc.recMessage(); // messaggio per aspettare il secondo giocatore
             //        System.out.println(sc.recMessage());
@@ -375,16 +376,27 @@ public class MinMax {
             System.out.println(sc.recMessage());
             System.out.println(sc.recMessage());
             //        System.out.println(sc.recMessage());
-
+            LIVELLI++;
+//            LIVELLI++;
             scegli(nn, 1);
-
+//            LIVELLI--;
+            LIVELLI--;
             if (bianco) {
                 System.out.println(sc.recMessage());
 //                m = scegli(nn, algo);
                 m = ingannoDiDrake(0);
+
+                for(Nodo nodo : nn.figli)
+                    if(nodo.pre.equals(m)) {
+                        nn = nodo;
+                        break;
+                    }
+                System.out.println("--BIANCO-------------------------------------------------");
+                System.out.println(nn.pre);
+                System.out.println("---------------------------------------------------");
                 //System.out.println("BIANCO MOVE " + m.getCell() + "," + m.getDir());
                 sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
-                nn.bb.muovi(m, bianco);
+//                nn.bb.muovi(m, bianco);
                 System.out.println(nn.bb);
             }
             else {
@@ -394,12 +406,32 @@ public class MinMax {
                     String[] move = msg.split(" ")[1].split(",");
                     m = new Mossa(Direzione.valueOf(move[1]), move[0].charAt(0), Integer.parseInt(move[0].substring(1)));
                     //System.out.println("mossa dell'avversario: " + m);
-                    nn = new Nodo(bianco, nn.bb, m);
-                    nn.bb.muovi(m, !bianco);
+//                    nn = new Nodo(bianco, nn.bb, m);
+//                    nn.bb.muovi(m, !bianco);
+                    for(Nodo nodo : nn.figli)
+                        if (nodo.pre.equals(m)) {
+                            nn = nodo;
+                            break;
+                        }
+                    System.out.println("---------------------------------------------------");
+                    System.out.println(nn);
+                    System.out.println(nn.pre);
+                    System.out.println(m);
+                    System.out.println("---------------------------------------------------");
 
                     m = ingannoDiDrake(Integer.parseInt(move[0].substring(1)));
+
+                    for(Nodo nodo : nn.figli) {
+                        System.out.println("--FOR-------------------------------------------------");
+                        System.out.println(nodo.figli);
+                        System.out.println("---------------------------------------------------");
+                        if (nodo.pre.equals(m)) {
+                            nn = nodo;
+                            break;
+                        }
+                    }
                     sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
-                    nn.bb.muovi(m, bianco);
+//                    nn.bb.muovi(m, bianco);
                 }
             }
 
@@ -413,18 +445,25 @@ public class MinMax {
                     //System.out.println("mossa dell'avversario: " + m);
 //                    nn = new Nodo(bianco, nn.bb, m);
 //                    nn.bb.muovi(m, !bianco);
+                    System.out.println(nn.figli);
 
-                    for (Nodo nodo : nn.figli)
-                        if (nodo.pre == m) {
+                    for (Nodo nodo : nn.figli) {
+                        System.out.println("------------------for-------------------");
+                        System.out.println(nodo.pre);
+                        System.out.println("------------------for-------------------");
+                        if (nodo.pre.equals(m)) {
                             nn = nodo;
                             break;
                         }
+                    }
+                    System.out.println(nn);
+                    nn = scegli(nn, algo);
 
-                    m = scegli(nn, algo);
-                    if (m == null)
+                    if (nn == null)
                         break;
+                    m = nn.pre;
                     sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
-                    nn.bb.muovi(m, bianco);
+//                    nn.bb.muovi(m, bianco);
                 }
             }
         }
@@ -466,7 +505,7 @@ public class MinMax {
                 Instant start = Instant.now();
 
                 //m = ingannoDiDrake(Integer.parseInt(String.valueOf(y.charAt(1))));
-                m = scegli(nn, 1);
+//                m = scegli(nn, 1);
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);
@@ -487,7 +526,7 @@ public class MinMax {
                 System.out.println(nn);
                 Instant start = Instant.now();
 
-                m = scegli(nn, 1);
+//                m = scegli(nn, 1);
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);

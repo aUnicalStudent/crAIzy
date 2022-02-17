@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Mossa {
     private Direzione dir;
     private int r, c;
@@ -48,5 +50,18 @@ public class Mossa {
     @Override
     public String toString() {
         return "Mossa{ dir= " + getDir() + ", cell= " + getCell() + "}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Mossa mossa = (Mossa) o;
+        return r == mossa.r && c == mossa.c && dir == mossa.dir;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dir, r, c);
     }
 }
