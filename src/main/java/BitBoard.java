@@ -105,8 +105,8 @@ public class BitBoard implements Cloneable {
         }
     }
 
-    public byte diff() {
-        return (byte) (numPedineW - numPedineB);
+    public int diff() {
+        return numPedineW - numPedineB;
     }
 
     public int somma(){
@@ -177,7 +177,6 @@ public class BitBoard implements Cloneable {
         return sb.toString();
     }
 
-    //TODO in caso rimuovere
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -186,4 +185,8 @@ public class BitBoard implements Cloneable {
         return boardB.equals(board.boardB) && boardW.equals(board.boardW);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(boardB, boardW, numPedineB, numPedineW);
+    }
 }
