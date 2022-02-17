@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
-    private static int LIVELLI = 6;
+    private static int LIVELLI = 5;
 
     static class Nodo implements Comparable<Nodo>{
         private boolean col; // true bianco, false nero
@@ -377,9 +377,9 @@ public class MinMax {
             System.out.println(sc.recMessage());
             //        System.out.println(sc.recMessage());
             LIVELLI++;
-//            LIVELLI++;
-            scegli(nn, 1);
-//            LIVELLI--;
+            LIVELLI++;
+            scegli(nn, 0);
+            LIVELLI--;
             LIVELLI--;
             if (bianco) {
                 System.out.println(sc.recMessage());
@@ -473,22 +473,32 @@ public class MinMax {
             // CON GIOCATORI
             Scanner sc = new Scanner(System.in);
             System.out.print("Che giocatore sei ? B o W > ");
-            boolean ab = true;
+//            boolean ab = true;
+            int ab =3;
             //sc.next();
             // Da cambiare quando si vuole giocare con un altro giocatore
             // Se B allora giochi da bianco, Se W giochi da nero
             bianco = sc.next().toUpperCase().equals("B");
-            nn = new Nodo(bianco, board, null);
+            nn = new Nodo(true, board, null);
+            int tmp =LIVELLI;
+            LIVELLI = 4;
+            scegli(nn, 0);
+            LIVELLI = tmp;
 
 
             if (bianco) {
                 Instant start = Instant.now();
 //                m = scegli(nn, ab);
                 m = ingannoDiDrake(0);
+                for(Nodo nodo : nn.figli)
+                    if (nodo.pre.equals(m)) {
+                        nn = nodo;
+                        break;
+                    }
                 Instant finish = Instant.now();
                 System.out.println(m);
                 long timeElapsed = Duration.between(start, finish).toMillis();
-                nn.bb.muovi(m, bianco);
+//                nn.bb.muovi(m, bianco);
                 System.out.println("[+] Time elapsed: " + timeElapsed);
                 System.out.println(nn);
             }
@@ -499,16 +509,26 @@ public class MinMax {
                 m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
                 //            System.out.println(m.getRM() + " " + m.getCM());
 
-                nn = new Nodo(bianco, nn.bb, null);
-                nn.bb.muovi(m, !bianco);
+//                nn = new Nodo(bianco, nn.bb, null);
+//                nn.bb.muovi(m, !bianco);
+                for(Nodo nodo : nn.figli)
+                    if (nodo.pre.equals(m)) {
+                        nn = nodo;
+                        break;
+                    }
                 System.out.println(nn);
                 Instant start = Instant.now();
 
-                //m = ingannoDiDrake(Integer.parseInt(String.valueOf(y.charAt(1))));
+                m = ingannoDiDrake(Integer.parseInt(String.valueOf(y.charAt(1))));
+                for(Nodo nodo : nn.figli)
+                    if (nodo.pre.equals(m)) {
+                        nn = nodo;
+                        break;
+                    }
 //                m = scegli(nn, 1);
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
-                nn.bb.muovi(m, bianco);
+//                nn.bb.muovi(m, bianco);
                 System.out.println("[+] Time elapsed: " + timeElapsed);
                 System.out.println(m);
                 System.out.println(nn);
@@ -521,15 +541,21 @@ public class MinMax {
                 m = new Mossa(dir, y.charAt(0), Integer.parseInt(String.valueOf(y.charAt(1))));
                 //            System.out.println(m.getRM() + " " + m.getCM());
 
-                nn = new Nodo(bianco, nn.bb, null);
-                nn.bb.muovi(m, !bianco);
+//                nn = new Nodo(bianco, nn.bb, null);
+//                nn.bb.muovi(m, !bianco);
+                for(Nodo nodo : nn.figli)
+                    if (nodo.pre.equals(m)) {
+                        nn = nodo;
+                        break;
+                    }
                 System.out.println(nn);
                 Instant start = Instant.now();
 
-//                m = scegli(nn, 1);
+                nn = scegli(nn, ab);
+                m = nn.pre;
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
-                nn.bb.muovi(m, bianco);
+//                nn.bb.muovi(m, bianco);
                 System.out.println("[+] Time elapsed: " + timeElapsed);
                 System.out.println(m);
                 System.out.println(nn);
