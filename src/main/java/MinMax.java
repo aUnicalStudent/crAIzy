@@ -445,8 +445,8 @@ public class MinMax {
                 System.out.println(nn);
                 Instant start = Instant.now();
 
-                //m = ingannoDiDrake(Integer.parseInt(String.valueOf(y.charAt(1))));
-                m = scegli(nn, ab);
+                m = ingannoDiDrake(Integer.parseInt(String.valueOf(y.charAt(1))));
+//                m = scegli(nn, ab);
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);
