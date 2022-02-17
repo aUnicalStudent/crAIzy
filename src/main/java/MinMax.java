@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class MinMax {
     private static boolean bianco;
     private enum Righe {H,G,F,E,D,C,B,A}
-    private static int LIVELLI = 6;
+    private static int LIVELLI = 4;
 
     static class Nodo implements Comparable<Nodo>{
         private boolean col; // true bianco, false nero
@@ -15,7 +15,6 @@ public class MinMax {
         //Scacchiera
         private BitBoard bb;
         private Queue<Nodo> figli = new PriorityQueue<>();
-//        private List<Nodo> figli = new LinkedList<>();
         private Mossa pre;
 
         public Nodo() {}
@@ -48,7 +47,7 @@ public class MinMax {
         @Override
         public int compareTo(Nodo o) {
 //            if(o.calcolaEuristica()!=calcolaEuristica())
-                return (int) (o.calcolaEuristica() - calcolaEuristica());
+            return (int) (o.calcolaEuristica() - calcolaEuristica());
 //            return 1;
 
 //            return (int) (o.calcolaEuristica() - calcolaEuristica());
@@ -258,7 +257,7 @@ public class MinMax {
     }
 
     private static void generaFigli(Nodo nodo) {
-        if(nodo.figli.size() > 0 || (nodo.bb.getNumPedineB() <= 1 && nodo.bb.getNumPedineW() <= 1) || nodo.bb.getNumPedineB() < 1 || nodo.bb.getNumPedineW() < 1)
+        if((nodo.bb.getNumPedineB() <= 1 && nodo.bb.getNumPedineW() <= 1) || nodo.bb.getNumPedineB() < 1 || nodo.bb.getNumPedineW() < 1)
             return;
 
         List<Mossa> m = nodo.bb.mossePossibili(nodo.col);
@@ -270,24 +269,14 @@ public class MinMax {
         }
     }
 
-    private static Mossa scegli(Nodo nodo, int ab) {
-        float val = 0;
+    private static Mossa scegli(Nodo nodo, boolean ab) {
+        float val;
         //System.out.println(ab? "AB": "MINMAX");
-//        val = !ab? minmax(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+        val = !ab? minmax(nodo, LIVELLI): anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //System.out.println(val);
         //val = negamaxAlphaBeta(nodo, 4, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
         //val = anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         //val = negaScout(nodo, 3, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-
-        if (ab == 0)
-            val = minmax(nodo, LIVELLI);
-        else if (ab == 1)
-            val = anAlfaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
-        else if (ab == 2)
-            val = negamaxAlphaBeta(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-        else if (ab == 3)
-            val = negaScout(nodo, LIVELLI, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, true);
-
         float a;
         Mossa mossa = null;
 
@@ -295,11 +284,11 @@ public class MinMax {
             a = n.euristica;
             if(a == val) {
                 mossa = n.pre;
-//                System.out.println("----------------------------------");
-//////                stampaGerarchia(n);
-//                System.out.println(nodo.figli);
-//                System.out.println("----------------------------------");
-//                System.out.println(mossa + " -> " + a);
+                System.out.println("----------------------------------");
+////                stampaGerarchia(n);
+                System.out.println(nodo.figli);
+                System.out.println("----------------------------------");
+                System.out.println(mossa + " -> " + a);
                 return mossa;
             }
         }
@@ -355,8 +344,8 @@ public class MinMax {
         if(s.next().toUpperCase().equals("S")) {
             System.out.print("# LIVELLI: ");
             MinMax.LIVELLI = s.nextInt();
-            System.out.print("0 -> minmax\n1 -> analfa\n2 -> negamax\n3 -> negaScout\n>");
-            int algo = s.nextInt();
+            System.out.print("ALGORITMO (true -> analfa / false -> minmax): ");
+            boolean algo = s.nextBoolean();
 
             // CON SERVER
             ServerCommunication sc = new ServerCommunication();
@@ -376,12 +365,10 @@ public class MinMax {
             System.out.println(sc.recMessage());
             //        System.out.println(sc.recMessage());
 
-            scegli(nn, 1);
 
             if (bianco) {
                 System.out.println(sc.recMessage());
-//                m = scegli(nn, algo);
-                m = ingannoDiDrake(0);
+                m = scegli(nn, algo);
                 //System.out.println("BIANCO MOVE " + m.getCell() + "," + m.getDir());
                 sc.sendMessage("MOVE " + m.getCell() + "," + m.getDir());
                 nn.bb.muovi(m, bianco);
@@ -402,23 +389,16 @@ public class MinMax {
                     nn.bb.muovi(m, bianco);
                 }
             }
-
             String msg = "";
             while (msg != null) {
                 msg = sc.recMessage();
                 System.out.println("MESSAGGIO DAL SERVER " + msg);
                 if (msg != null && msg.contains("OPPONENT_MOVE")) {
-                    String[] move = msg.split(" ")[1].split(",");
+                    String move[] = msg.split(" ")[1].split(",");
                     m = new Mossa(Direzione.valueOf(move[1]), move[0].charAt(0), Integer.parseInt(move[0].substring(1)));
                     //System.out.println("mossa dell'avversario: " + m);
-//                    nn = new Nodo(bianco, nn.bb, m);
-//                    nn.bb.muovi(m, !bianco);
-
-                    for (Nodo nodo : nn.figli)
-                        if (nodo.pre == m) {
-                            nn = nodo;
-                            break;
-                        }
+                    nn = new Nodo(bianco, nn.bb, m);
+                    nn.bb.muovi(m, !bianco);
 
                     m = scegli(nn, algo);
                     if (m == null)
@@ -466,7 +446,7 @@ public class MinMax {
                 Instant start = Instant.now();
 
                 //m = ingannoDiDrake(Integer.parseInt(String.valueOf(y.charAt(1))));
-                m = scegli(nn, 1);
+                m = scegli(nn, ab);
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);
@@ -487,7 +467,7 @@ public class MinMax {
                 System.out.println(nn);
                 Instant start = Instant.now();
 
-                m = scegli(nn, 1);
+                m = scegli(nn, ab);
                 Instant finish = Instant.now();
                 long timeElapsed = Duration.between(start, finish).toMillis();
                 nn.bb.muovi(m, bianco);
