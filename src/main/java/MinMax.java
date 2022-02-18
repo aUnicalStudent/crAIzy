@@ -237,9 +237,9 @@ public class MinMax {
         ServerCommunication sc = new ServerCommunication();
 
         if (args.length != 0)
-            sc.startConnection(args[0], 8901);
+            sc.startConnection(args[0], Integer.parseInt(args[1]));
         else
-            sc.startConnection("160.97.28.146", 8901);
+            System.out.println("Bad Connection");
 
         colGiocatore = sc.recMessage().contains("White"); // Messaggio di welcome
         Nodo nn = new Nodo(colGiocatore, board, null);
