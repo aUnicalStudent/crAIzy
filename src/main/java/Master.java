@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.util.*;
 
-public class MinMax {
+public class Master {
     private static boolean colGiocatore;  // true bianco, false nero
     private static final int LIVELLI = 4;
 
